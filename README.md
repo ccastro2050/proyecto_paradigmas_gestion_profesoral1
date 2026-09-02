@@ -94,6 +94,7 @@ GitHub Spec Kit, y cómo se arman estos documentos.
 
 | Documento | Contenido |
 |---|---|
+| [PLAN_V1.md](PLAN_V1.md) | **El plan con el que se construyó esta versión**: los hallazgos, las decisiones, los ocho pasos y el prompt |
 | [SDD_SPECKIT.md](docs/SDD_SPECKIT.md) | **Empiece por aquí**: el método |
 | [1_constitution.md](docs/spec_kit/1_constitution.md) | Las reglas permanentes del proyecto |
 | [0_mapa_versiones.md](docs/spec_kit/versiones/0_mapa_versiones.md) | La ruta v1 → v4 y qué tabla entra en cada versión |
