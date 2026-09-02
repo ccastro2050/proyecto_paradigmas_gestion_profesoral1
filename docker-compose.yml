@@ -1,0 +1,58 @@
+# ==============================================================
+# Módulo GESTIÓN PROFESORAL — versión 1
+#
+#   API GESTIÓN PROFESORAL (FastAPI, :8029) ──→ PostgreSQL (:15441)
+#
+# TODO el sistema está declarado aquí. Un solo comando lo levanta:
+#
+#     docker compose up -d --build
+#
+# No hay que instalar Python, ni PostgreSQL, ni nada: solo Docker.
+# ==============================================================
+
+services:
+
+  # --- La base de datos ---------------------------------------------
+  postgres:
+    image: postgres:16
+    container_name: paradigmas-gestion-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gestion
+      POSTGRES_PASSWORD: Gestion123!
+      POSTGRES_DB: gestion_local
+    ports:
+      - "15441:5432"          # para DBeaver o pgAdmin, opcional
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # PostgreSQL ejecuta SOLO lo que encuentre aquí, y SOLO la primera vez
+      # (cuando el volumen está vacío). Por eso no hace falta un contenedor
+      # inicializador: el motor se encarga.
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      # La API arranca cuando la base RESPONDE, no cuando el contenedor existe
+      test: ["CMD-SHELL", "pg_isready -U gestion -d gestion_local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # --- La API: FastAPI ----------------------------------------------
+  api-gestion:
+    build: ./api_gestion
+    container_name: paradigmas-gestion-api
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8029 --reload
+    ports:
+      - "8029:8029"           # el MISMO número adentro y afuera
+    volumes:
+      - ./api_gestion:/app   # el código montado: guardar un .py recarga solo
+    environment:
+      # El host es el NOMBRE del servicio (postgres), nunca localhost: dentro
+      # de un contenedor, localhost es él mismo.
+      DB_POSTGRES: postgresql+asyncpg://gestion:Gestion123!@postgres:5432/gestion_local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:                     # la "memoria" de la base entre reinicios

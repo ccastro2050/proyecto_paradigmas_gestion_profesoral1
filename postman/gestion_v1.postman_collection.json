@@ -1,0 +1,365 @@
+{
+  "info": {
+    "name": "Gestión Profesoral (Python) — v1 (programa)",
+    "description": "Los 7 endpoints de la v1, en el orden del smoke test. La tabla arranca VACÍA.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8029"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Diagnóstico",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        },
+        "description": "Responde 200 con version v1."
+      }
+    },
+    {
+      "name": "2. Listar — VACÍO al arrancar",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa"
+          ]
+        },
+        "description": "Con la base recién levantada responde 204 SIN cuerpo. No es un error."
+      }
+    },
+    {
+      "name": "3. Crear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa"
+          ]
+        },
+        "description": "Responde 200. Repetirlo da 500: la llave la defiende la base.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 9001,\n  \"nombre\": \"Ingenieria de Sistemas\",\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2005-01-15\",\n  \"numero_cohortes\": \"40\",\n  \"cant_graduados\": \"1250\",\n  \"fecha_actualizacion\": \"2026-01-30\",\n  \"ciudad\": \"Medellin\",\n  \"facultad\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "4. Listar — ahora con 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa"
+          ]
+        },
+        "description": "Responde 200 con total 1."
+      }
+    },
+    {
+      "name": "5. Listar con límite",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa?limite=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa"
+          ],
+          "query": [
+            {
+              "key": "limite",
+              "value": "5"
+            }
+          ]
+        },
+        "description": "limite=0 o negativo responde 400: la forma es válida, la regla no."
+      }
+    },
+    {
+      "name": "6. Obtener por llave",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "Una llave inexistente o inactiva responde 404."
+      }
+    },
+    {
+      "name": "7. Reemplazar (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "Reemplazar es poner TODO de nuevo: los obligatorios lo siguen siendo.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ingenieria de Sistemas\",\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2005-01-15\",\n  \"numero_cohortes\": \"40\",\n  \"cant_graduados\": \"1250\",\n  \"fecha_actualizacion\": \"2026-01-30\",\n  \"ciudad\": \"Medellin\",\n  \"facultad\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "8. PUT incompleto → 422",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "LA LECCIÓN: este MISMO cuerpo responde 200 en la petición 9.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2005-01-15\",\n  \"numero_cohortes\": \"40\",\n  \"cant_graduados\": \"1250\",\n  \"fecha_actualizacion\": \"2026-01-30\",\n  \"ciudad\": \"Medellin\",\n  \"facultad\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "9. PATCH mismo cuerpo → 200",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "Lo decide el tipo del cuerpo, no un if en el servicio.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2005-01-15\",\n  \"numero_cohortes\": \"40\",\n  \"cant_graduados\": \"1250\",\n  \"fecha_actualizacion\": \"2026-01-30\",\n  \"ciudad\": \"Medellin\",\n  \"facultad\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "10. PATCH un solo campo",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "Solo se escribe lo que llegó.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ciudad\": \"Bogota\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "11. PATCH vacío → 400",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "Sin campos no hay nada que actualizar: 400, no 404.",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "12. 404 — no existe",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "999999"
+          ]
+        },
+        "description": ""
+      }
+    },
+    {
+      "name": "13. Eliminar (LÓGICO)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "La fila NO se borra: queda con activo = FALSE y sale del listado."
+      }
+    },
+    {
+      "name": "14. Eliminar otra vez → 404",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/programa/9001",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "programa",
+            "9001"
+          ]
+        },
+        "description": "Ya está inactiva: para la API no existe."
+      }
+    }
+  ]
+}
