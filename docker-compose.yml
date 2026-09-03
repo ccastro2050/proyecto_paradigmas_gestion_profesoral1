@@ -54,5 +54,26 @@ services:
       postgres:
         condition: service_healthy
 
+  # --- El FRONT: Blazor Server, C#/.NET ---------------------------------
+  front-blazor:
+    build: ./front_blazor
+    container_name: gestion-front
+    restart: unless-stopped
+    ports:
+      - "8027:8027"           # http://localhost:8027
+    volumes:
+      - ./front_blazor:/app        # el código montado: guardar un .razor recompila solo
+      - /app/bin                   # bin y obj quedan DENTRO del contenedor
+      - /app/obj
+    environment:
+      # El NOMBRE del servicio, no localhost: dentro del contenedor del front,
+      # localhost sería el front mismo.
+      - UrlApi=http://api-gestion:8029
+    depends_on:
+      - api-gestion
+      # NO depende de postgres, y eso no es un olvido: el front no tiene nada
+      # que hacer con la base. Si algún día necesitara esa dependencia, sería la
+      # señal de que alguien rompió la arquitectura.
+
 volumes:
   pgdata:                     # la "memoria" de la base entre reinicios
