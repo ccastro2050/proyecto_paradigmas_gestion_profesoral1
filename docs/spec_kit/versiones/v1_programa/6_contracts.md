@@ -160,3 +160,48 @@ DELETE /api/programa/999999                    ← nunca existió
 
 **La fila no se borra:** queda con `activo = FALSE`. El listado **vuelve a
 responder 204** y la fila sigue en la base — es el criterio 5.
+
+
+---
+
+## El contrato de la PANTALLA
+
+Lo anterior es el contrato de la API con **cualquiera** que la consuma. Este es
+el de la pantalla con **quien la usa**: son dos contratos distintos, porque el
+front es *un* cliente de la API, no *el* cliente.
+
+| Pantalla | Dirección | Qué ofrece |
+|---|---|---|
+| Inicio | <http://localhost:8027/> | La entrada, con el enlace |
+| Programas | <http://localhost:8027/programas> | La tabla, «Agregar», «Editar» y «Retirar» |
+
+**Cada pantalla tiene dirección propia**, no una con el nombre de la tabla como
+parámetro (sección 6.1 de la metodología). Se puede guardar como marcador,
+poner en el menú y mandar por correo.
+
+### Qué pantalla llama a qué endpoint
+
+| Lo que hace el usuario | Lo que manda el front |
+|---|---|
+| Abrir la pantalla | `GET /api/programa?limite=1000` |
+| «Agregar» y guardar | `POST /api/programa` |
+| «Guardar la ficha completa» | `PUT /api/programa/{llave}` |
+| «Guardar solo lo que cambié» | `PATCH /api/programa/{llave}` con **solo** lo diligenciado |
+| «Retirar», tras confirmar | `DELETE /api/programa/{llave}` |
+
+### Cómo traduce el front los errores
+
+El front **no repite** ninguna validación de la API: manda, y muestra lo que
+vuelva.
+
+| Lo que responde la API | Lo que ve el usuario |
+|---|---|
+| Un cuerpo inválido, con `errores[]` | Un aviso rojo por cada error, con el texto que mandó la API |
+| 400 / 404 / 500 con `{mensaje, detalle}` | Un aviso rojo con esos dos textos |
+| **204** (no hay filas) | Un recuadro que dice que todavía no hay ninguna. **Vacío no es error** |
+| **La API no responde** | «El servicio no está disponible. ¿Está arriba la API?» |
+
+> **La última fila es la que demuestra la arquitectura.** Con la API apagada la
+> pantalla **sigue en pie** —cabecera, menú, pie— y muestra ese aviso **sin un
+> solo dato**. Lo comprueba `pruebas_humo/humo_front.py`, que apaga la API a
+> propósito y la vuelve a encender.

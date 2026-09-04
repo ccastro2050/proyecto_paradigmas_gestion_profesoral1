@@ -189,3 +189,59 @@ criterio 2 comprueba el **204** en vez de un total. Y el ejemplo demuestra
 algo que el otro no puede: que el sistema funciona **antes** de tener
 datos. **Estado:** vigente.
 
+
+
+---
+
+## El front es un TERCER PROCESO
+
+**Lo que se decidió.** El front va en su propio contenedor, en su propio puerto
+(8027), con su propio proyecto de .NET. Habla con la API **solo
+por HTTP**.
+
+**Lo que se descartó.**
+
+| Alternativa | Por qué no |
+|---|---|
+| **Servir las páginas desde la misma API** | Un solo proceso: la separación pasaría a ser una convención que nadie puede verificar. Y apagar «la API» apagaría la pantalla, así que el criterio P4 dejaría de existir |
+| **Un `ApiService` genérico** con la tabla como parámetro | Sección 6.1 de la metodología: un método `Listar(string tabla)` no dice qué recursos existen, y el compilador deja de revisar |
+| **Escribir el front en Python**, como la API | Se perdería lo que este módulo demuestra por construcción: con dos lenguajes, compartir código es imposible y la separación deja de ser una promesa |
+
+**Cómo se verifica que la decisión se cumple**, que es lo que la vuelve algo
+más que una intención:
+
+1. El `.csproj` del front **no tiene ningún paquete** de acceso a datos.
+2. El servicio `front-blazor` **no depende de `postgres`** en el compose.
+3. Y la prueba: `docker compose stop api-gestion` deja la pantalla en
+   pie, con su aviso y **sin un solo dato**.
+
+> **Este módulo tiene una ventaja que conviene no desperdiciar.** La API está
+> en Python / FastAPI y el front en C#: **no hay forma de compartir código**,
+> ni por descuido. Lo que en un proyecto de un solo lenguaje es una regla que
+> alguien puede romper, aquí lo impide el stack.
+
+---
+
+## La pantalla no le habla al usuario en jerga
+
+**Lo que se decidió.** En la pantalla no aparece ningún verbo HTTP, ningún
+código de estado, ni ninguna ruta de la API. Los dos botones de guardar se
+llaman **«Guardar la ficha completa»** y **«Guardar solo lo que cambié»**.
+
+**Lo que se descartó:** nombrarlos «PUT» y «PATCH», que es lo que sale solo
+cuando quien escribe la pantalla viene de escribir el controlador.
+
+**Por qué importa.** Quien usa esto administra un catálogo. «PUT» no le dice
+nada, y peor: le sugiere que necesita saber algo que no necesita. La distinción
+que sí le sirve —«¿mando todo o solo lo que toqué?»— es exactamente la que los
+dos nombres explican, sin perder nada del contenido técnico: **el mismo
+formulario a medio llenar que «la ficha completa» rechaza, «solo lo que cambié»
+lo guarda.**
+
+> Se comprueba automáticamente y **sobre el texto visible**, no sobre el HTML:
+> el guion quita las etiquetas y decodifica las entidades antes de buscar.
+>
+> Y busca **tokens técnicos**, no palabras: `programa` es a la vez el
+> nombre de una tabla y una palabra que el usuario dice, así que buscarla
+> suelta daría un rojo donde no hay nada malo. Lo que sí es jerga es la ruta
+> `/api/…` y los nombres con guion bajo.

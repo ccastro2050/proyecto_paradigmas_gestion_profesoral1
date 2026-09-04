@@ -28,6 +28,8 @@ docker compose up -d --build
 
 | Qué | Dónde |
 |---|---|
+| **LA PANTALLA** (lo que ve el usuario) | http://localhost:8027 |
+| Programas | http://localhost:8027/programas |
 | **API — documentación interactiva** | http://localhost:8029/docs |
 | Diagnóstico | http://localhost:8029/ |
 | Listado | http://localhost:8029/api/programa |

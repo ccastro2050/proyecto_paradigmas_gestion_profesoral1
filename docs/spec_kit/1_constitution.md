@@ -28,6 +28,57 @@
 - Si el código hace algo que la spec no dice, sobra; si la spec pide algo
   que el código no hace, falta.
 
+## Artículo 1.1 — Una versión incluye SU FRONT
+
+**Cada versión entrega su parte de la API *y* su parte del front.** No hay una
+versión «de back» y otra «de front».
+
+> **La regla operativa: una versión NO está cerrada si la API responde y la
+> pantalla no.** Media versión no es una versión.
+
+### Por qué
+
+| | |
+|---|---|
+| **Lo terminado se le puede mostrar a alguien** | Una versión que solo trae endpoints se sustenta con la documentación de la API. Una que trae pantallas se le muestra a quien la pidió |
+| **El contrato se ejercita de inmediato** | Uno descubre que el JSON es incómodo **cuando le toca pintarlo**. Si el front llega tres versiones después, el contrato lleva tres versiones equivocado |
+| **No hay front de golpe al final** | Es el error que se paga caro: seis entidades de API esperando un front que nace con una sola |
+| **Es lo que pide el curso** | `0_METODOLOGIA.md` §2, textual: *«v1 — CRUD de las tablas sin FK del módulo — **API REST + Frontend funcionando**»* |
+
+Y lo que cuesta: **cada versión es el doble de grande** y cada compuerta revisa
+dos stacks. Se compensa recortando el alcance: esta v1 toma **una** tabla.
+
+### El front es un TERCER PROCESO
+
+**Blazor Server**, en su propio proyecto y en su propio contenedor, hablando
+con la API **solo por HTTP**. Tres cosas que se comprueban, no que se prometen:
+
+1. Su `.csproj` **no tiene ningún paquete de acceso a datos**.
+2. Su servicio en el compose **no depende de `postgres`**.
+3. Y la prueba: **apagando la API, la pantalla sigue en pie**, con su aviso y
+   **sin un solo dato**.
+
+### Y no puede compartir código con la API, y eso es una ventaja
+
+La API de este módulo está en **Python / FastAPI** y el front en C#. Un
+proyecto de .NET no puede referenciar un módulo de Python: **compartir una
+clase es imposible**, no una regla que haya que recordar.
+
+Eso es lo que vuelve **verificable** la afirmación que todo el curso repite —el
+front solo habla por HTTP—. Con un solo lenguaje hay que creerla; con dos, se
+comprueba sola.
+
+> El front tiene su propia clase `Programa`, que se parece a la del modelo
+> de la API porque el contrato es el mismo. Lo único que viaja entre los dos
+> procesos es JSON.
+
+### La pantalla habla el idioma del usuario
+
+Ni verbos HTTP, ni códigos de estado, ni nombres de tabla. Los dos botones de
+guardar se llaman **«Guardar la ficha completa»** y **«Guardar solo lo que
+cambié»**: que uno mande un reemplazo y el otro una modificación parcial es
+asunto del programa, no de quien usa el sistema.
+
 ## Artículo 2 — Stack: Python y FastAPI, con el SQL a la vista
 
 - Lenguaje **Python 3.12** sobre **FastAPI**: controladores con
@@ -169,7 +220,7 @@ un 404 o un 422 tienen su formato exacto documentado.
 | Cosa | Convención |
 |---|---|
 | Nombres de contenedor | Llevan el prefijo `paradigmas-gestion-`: los nombres, como los puertos, **no se repiten** entre proyectos |
-| Puertos del proyecto | API **8029** · PostgreSQL **15441** · (reservado: front **8075** para la v4) |
+| Puertos del proyecto | API **8029** · **front 8027** · PostgreSQL **15441** |
 | Base de datos | `gestion_local` |
 | Rutas | `/` (diagnóstico) · `/docs` (documentación interactiva) · `/api/{tabla}` |
 | Nombres | snake_case en español; interfaces con prefijo `I`; carpetas `controllers/ models/ models/ servicios/ repositorios/ excepciones/ pruebas/` (`models/` = clases entidad; `models/` = el cuerpo de cada verbo) |

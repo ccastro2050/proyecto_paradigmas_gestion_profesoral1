@@ -164,3 +164,48 @@ día que entre un segundo, **este archivo es el único que cambia**.
 | 10 — Convenciones fijas | ✅ | La ruta nombra la tabla; el JSON usa `snake_case` |
 
 **Ningún artículo obliga a cambiar el plan.** La compuerta pasa.
+
+
+---
+
+## El stack del FRONT
+
+| Pieza | Elección | Por qué |
+|---|---|---|
+| Front | **Blazor Server**, .NET 10 | Es lo que pide el módulo. El componente se renderiza en el servidor y el navegador recibe HTML ya armado |
+| Cómo habla con la API | `HttpClient` y **JSON**, nada más | Sin biblioteca compartida, sin referencia de proyecto, sin paquete común |
+| Estilos | **CSS escrito a mano** | Cero dependencias. Un front que necesita internet para verse bien no arranca en un salón sin red |
+| Puerto | **8027** | Registrado en `PUERTOS.md`, sin chocar con nadie |
+
+> **Aquí la separación no hay que cuidarla: la imponen los lenguajes.** La API
+> está en Python / FastAPI y el front en C#, así que **compartir una clase es
+> imposible** — un proyecto de .NET no puede referenciar un módulo de Python.
+>
+> Eso vuelve **verificable** lo que todo el curso repite: que el front solo
+> habla por HTTP. Con un solo lenguaje hay que creerlo; con dos, se comprueba
+> solo.
+
+**Un servicio por recurso, no uno genérico.** `ServicioPrograma` tiene seis
+métodos con nombre —`Listar`, `Obtener`, `Crear`, `Reemplazar`, `Actualizar`,
+`Eliminar`— y sabe de una sola tabla. Cuando lleguen más recursos habrá más
+servicios, no un `ApiService.Listar(string tabla)`: es la sección 6.1 de la
+metodología del curso, aplicada del lado del front.
+
+### Las carpetas del front
+
+```
+front_blazor/
+├── FrontGestion.csproj    sin paquetes: no hay driver de base de datos
+├── Program.cs                   el ensamblador: registra UN servicio por recurso
+├── appsettings.json             la dirección de la API (el compose la sobreescribe)
+├── Dockerfile                   dotnet watch, igual que la API
+├── Servicios/                   la capa de datos del front
+├── Components/
+│   ├── Layout/                  el marco y el menú
+│   └── Pages/                   una pantalla por recurso
+└── wwwroot/app.css              los estilos, escritos a mano
+```
+
+**Que en el `.csproj` no aparezca ningún paquete de acceso a datos no es un
+olvido: es la comprobación** de que este proceso no puede llegar a
+PostgreSQL ni queriendo.
