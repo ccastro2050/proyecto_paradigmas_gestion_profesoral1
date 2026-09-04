@@ -275,3 +275,66 @@ debe.
 Si la respuesta no es «sigue en pie, con un aviso y sin datos», el front está
 leyendo de donde no debe — o no maneja el caso de que la API no responda, que
 es el mismo problema visto de otro lado.
+
+
+---
+
+## Antes de abrir el chat: prepare SU proyecto
+
+**Ojo: NO se construye dentro de la carpeta clonada.** El repositorio clonado
+es el **material de referencia**; su trabajo de reconstrucción va en una
+**carpeta nueva y vacía**, fuera de él.
+
+### 1. La carpeta y las subcarpetas
+
+Cree la carpeta de su proyecto, ábrala en VS Code (*File → Open Folder*) y, en
+la terminal integrada (*Terminal → New Terminal*, PowerShell), parado en ella:
+
+```powershell
+mkdir docs\spec_kit\versiones\v1_programa, db, api_gestion, api_gestion\controllers, api_gestion\models, api_gestion\pruebas, api_gestion\repositorios, api_gestion\repositorios\abstracciones, api_gestion\servicios, api_gestion\servicios\abstracciones, front_blazor, front_blazor\Components, front_blazor\Components\Layout, front_blazor\Components\Pages, front_blazor\Servicios, front_blazor\wwwroot, pruebas_humo
+```
+
+### 2. Los archivos VACÍOS
+
+**Usted los va llenando** uno a uno, pegando en cada uno el código que la IA le
+entregue. Que nazcan vacíos y con su nombre puesto es lo que le da forma al
+trabajo: se ve de una vez cuántas piezas son y dónde va cada una.
+
+```powershell
+New-Item .gitattributes, .gitignore, api_gestion\Dockerfile, api_gestion\controllers\__init__.py, api_gestion\controllers\programa_controller.py, api_gestion\main.py, api_gestion\models\__init__.py, api_gestion\models\programa.py, api_gestion\pruebas\prueba_capas.py, api_gestion\repositorios\__init__.py, api_gestion\repositorios\abstracciones\__init__.py, api_gestion\repositorios\abstracciones\i_repositorio_programa.py, api_gestion\repositorios\repositorio_programa_postgresql.py, api_gestion\requirements.txt, api_gestion\servicios\__init__.py, api_gestion\servicios\abstracciones\__init__.py, api_gestion\servicios\abstracciones\i_servicio_programa.py, api_gestion\servicios\ensamblador.py, api_gestion\servicios\servicio_programa.py, docker-compose.yml, front_blazor\Components\App.razor, front_blazor\Components\Layout\MainLayout.razor, front_blazor\Components\Layout\NavMenu.razor, front_blazor\Components\Pages\Home.razor, front_blazor\Components\Pages\Programas.razor, front_blazor\Components\Routes.razor, front_blazor\Components\_Imports.razor, front_blazor\Dockerfile, front_blazor\FrontGestion.csproj, front_blazor\Program.cs, front_blazor\Servicios\ServicioPrograma.cs, front_blazor\appsettings.json, front_blazor\wwwroot\app.css, pruebas_humo\humo_front.py
+```
+
+> **Fíjese en lo que la lista tiene y en lo que no.**
+>
+> **Tiene** los archivos del front —`front_blazor\…`— porque **la versión
+> incluye su pantalla** (Artículo 1.1). Son la mitad del trabajo, no un
+> añadido, y por eso nacen vacíos junto a los de la API.
+>
+> **No tiene** nada de `db\`: esos no nacen vacíos, se copian (paso 3).
+
+### 3. Los archivos que vienen DADOS: cópielos del repositorio del curso
+
+Con el explorador de Windows (Ctrl+C, Ctrl+V), cada uno a la misma ruta:
+
+| Del clon del curso | A su proyecto |
+|---|---|
+| `db\init.sql` | `db\` |
+| `docs\spec_kit\1_constitution.md` | `docs\spec_kit\` |
+| Los `.md` de `docs\spec_kit\versiones\v1_programa\` | la misma ruta |
+
+Estos vienen dados y **la IA no los genera**: los documentos se le SUBEN al
+chat, y los scripts de `db\` son la base de datos ya escrita.
+
+### 4. Compruebe antes de empezar
+
+- [ ] `docs\spec_kit\1_constitution.md` existe y tiene contenido.
+- [ ] `docs\spec_kit\versiones\v1_programa\` tiene **9 archivos**.
+- [ ] `db\` tiene sus scripts **con contenido**, no vacíos.
+- [ ] `front_blazor\` existe con sus carpetas, aunque los archivos estén
+      vacíos: si no está, la versión va a nacer sin la mitad que se ve.
+
+Si algo está vacío o falta, es el paso 3.
+
+> **La estructura queda lista ANTES de hablar con la IA**, y es la que describe
+> `3_plan.md`. Así el chat entrega código para archivos que ya existen, en vez
+> de proponerle a usted dónde ponerlos.
