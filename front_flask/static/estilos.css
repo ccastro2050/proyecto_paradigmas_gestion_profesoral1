@@ -1,0 +1,125 @@
+/* ==============================================================
+   Estilos del front. Escritos a mano y sin CDN: el salón puede quedarse
+   sin internet y la pantalla se sigue viendo igual.
+
+   Es una hoja corta a propósito. Lo que se está enseñando en este curso no
+   es CSS, y una hoja que nadie puede leer entera es una que nadie mantiene.
+   ============================================================== */
+
+:root {
+  --tinta: #1f2933;
+  --suave: #6b7480;
+  --borde: #d9d5cf;
+  --fondo: #f7f6f3;
+  --acento: #1d4ed8;
+  --error: #b42318;
+  --exito: #1a7f37;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--tinta);
+  font: 15px/1.55 "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+}
+
+.contenedor { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+/* --- la cabecera --- */
+.barra { background: #1f2933; color: #fff; }
+.barra-interna {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+}
+.marca { color: #fff; text-decoration: none; font-weight: 600; font-size: 17px; }
+.dependencia { color: #b9c0c8; font-size: 13px; }
+
+.menu { background: #fff; border-bottom: 1px solid var(--borde); }
+.menu-interno { display: flex; gap: 4px; padding: 0 20px; }
+.menu a {
+  padding: 11px 14px; color: var(--suave); text-decoration: none;
+  font-size: 14px; border-bottom: 2px solid transparent;
+}
+.menu a:hover { color: var(--tinta); }
+.menu a.activo { color: var(--acento); border-bottom-color: var(--acento); }
+
+main { padding: 26px 20px 40px; }
+
+/* --- encabezados de pantalla --- */
+.encabezado {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px;
+}
+h1 { font-size: 24px; margin: 0 0 4px; }
+h2 { font-size: 18px; margin: 0 0 8px; }
+.nota { color: var(--suave); margin: 0; font-size: 14px; max-width: 62ch; }
+
+/* --- avisos --- */
+.aviso {
+  padding: 10px 14px; border-radius: 6px; margin: 0 0 10px;
+  border: 1px solid transparent; font-size: 14px;
+}
+.aviso.error { background: #fdecea; border-color: #f5c2bd; color: var(--error); }
+.aviso.exito { background: #e8f5ec; border-color: #b6ddc2; color: var(--exito); }
+
+/* --- tabla --- */
+.tabla-scroll { overflow-x: auto; background: #fff;
+                border: 1px solid var(--borde); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--borde); }
+th { background: #f0eeea; font-weight: 600; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: #fbfaf8; }
+.codigo { font-family: Consolas, monospace; background: #eceae6;
+          padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.acciones { display: flex; gap: 6px; white-space: nowrap; }
+.acciones form { margin: 0; }
+
+/* --- formulario --- */
+.tarjeta-formulario {
+  background: #fff; border: 1px solid var(--borde); border-radius: 8px;
+  padding: 20px; max-width: 620px;
+}
+label { display: block; margin-bottom: 14px; font-size: 14px; font-weight: 600; }
+input, textarea {
+  display: block; width: 100%; margin-top: 5px; padding: 9px 11px;
+  border: 1px solid var(--borde); border-radius: 6px; font: inherit;
+  background: #fff;
+}
+textarea { resize: vertical; }
+input[readonly] { background: #efedea; color: var(--suave); cursor: not-allowed; }
+.ayuda { display: block; margin-top: 5px; color: var(--suave);
+         font-size: 13px; font-weight: 400; }
+.pareja { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+/* --- botones --- */
+.boton {
+  display: inline-block; padding: 8px 14px; border-radius: 6px;
+  border: 1px solid var(--borde); background: #fff; color: var(--tinta);
+  font: inherit; font-size: 14px; text-decoration: none; cursor: pointer;
+}
+.boton:hover { background: #f2f0ec; }
+.boton.primario { background: var(--acento); border-color: var(--acento); color: #fff; }
+.boton.primario:hover { background: #1739a8; }
+.boton.peligro { border-color: #e5b6b1; color: var(--error); }
+.boton.peligro:hover { background: #fdecea; }
+
+/* --- portada y vacío --- */
+.portada { background: #fff; border: 1px solid var(--borde);
+           border-radius: 8px; padding: 28px; margin-bottom: 22px; }
+.tarjetas { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.tarjeta { background: #fff; border: 1px solid var(--borde);
+           border-radius: 8px; padding: 20px; }
+.tarjeta.apagada { background: transparent; border-style: dashed; color: var(--suave); }
+.tarjeta p { font-size: 14px; color: var(--suave); }
+
+.vacio { background: #fff; border: 1px solid var(--borde); border-radius: 8px;
+         padding: 40px 20px; text-align: center; }
+.vacio p { margin: 0 0 6px; }
+
+footer { padding: 18px 20px 30px; color: var(--suave); font-size: 13px;
+         border-top: 1px solid var(--borde); margin-top: 30px; }
+footer p { margin: 0; }

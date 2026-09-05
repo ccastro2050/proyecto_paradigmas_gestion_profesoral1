@@ -172,40 +172,48 @@ día que entre un segundo, **este archivo es el único que cambia**.
 
 | Pieza | Elección | Por qué |
 |---|---|---|
-| Front | **Blazor Server**, .NET 10 | Es lo que pide el módulo. El componente se renderiza en el servidor y el navegador recibe HTML ya armado |
-| Cómo habla con la API | `HttpClient` y **JSON**, nada más | Sin biblioteca compartida, sin referencia de proyecto, sin paquete común |
+| Front | **Flask 3 + Jinja2**, Python 3.12 | La plantilla se renderiza **en el servidor** y el navegador recibe HTML ya armado: quien llama a la API es el proceso del front, no el navegador |
+| Cómo habla con la API | **`requests`** y JSON, nada más | Sin biblioteca compartida, sin `import` de la API, sin paquete común |
 | Estilos | **CSS escrito a mano** | Cero dependencias. Un front que necesita internet para verse bien no arranca en un salón sin red |
 | Puerto | **8027** | Registrado en `PUERTOS.md`, sin chocar con nadie |
 
-> **Aquí la separación no hay que cuidarla: la imponen los lenguajes.** La API
-> está en Python / FastAPI y el front en C#, así que **compartir una clase es
-> imposible** — un proyecto de .NET no puede referenciar un módulo de Python.
+> **Aquí la separación hay que cuidarla, porque nada la impone.** La API está
+> en Python y el front también: un `sys.path.append("../api_gestion")` bastaría para
+> importar sus modelos, y funcionaría.
 >
-> Eso vuelve **verificable** lo que todo el curso repite: que el front solo
-> habla por HTTP. Con un solo lenguaje hay que creerlo; con dos, se comprueba
-> solo.
+> Por eso lo que se verifica no es el lenguaje, sino tres hechos: el front no
+> tiene el driver de PostgreSQL, su servicio no depende de la base, y con la
+> API apagada la pantalla queda en pie sin un solo dato.
 
-**Un servicio por recurso, no uno genérico.** `ServicioPrograma` tiene seis
-métodos con nombre —`Listar`, `Obtener`, `Crear`, `Reemplazar`, `Actualizar`,
-`Eliminar`— y sabe de una sola tabla. Cuando lleguen más recursos habrá más
-servicios, no un `ApiService.Listar(string tabla)`: es la sección 6.1 de la
-metodología del curso, aplicada del lado del front.
+**Una función por operación, no una genérica.** `cliente_api.py` tiene seis
+funciones con nombre —`listar_programas`, `obtener_programa`, `crear_programa`,
+`reemplazar_programa`, `actualizar_programa`, `eliminar_programa`— y sabe de una sola tabla.
+Cuando lleguen más recursos habrá más funciones, no un
+`listar(recurso)`: es la sección 6.1 de la metodología del curso, aplicada
+del lado del front.
+
+**Y una pieza que este stack sí necesita:** FastAPI reporta sus errores de
+validación en inglés y con el nombre de la columna —«nombre: String should
+have at least 1 character»—. Eso está bien en la documentación de la API y
+está mal delante de un usuario, así que `cliente_api.py` los traduce, en un
+solo sitio. Traducir es trabajo de la capa de presentación.
 
 ### Las carpetas del front
 
 ```
-front_blazor/
-├── FrontGestion.csproj    sin paquetes: no hay driver de base de datos
-├── Program.cs                   el ensamblador: registra UN servicio por recurso
-├── appsettings.json             la dirección de la API (el compose la sobreescribe)
-├── Dockerfile                   dotnet watch, igual que la API
-├── Servicios/                   la capa de datos del front
-├── Components/
-│   ├── Layout/                  el marco y el menú
-│   └── Pages/                   una pantalla por recurso
-└── wwwroot/app.css              los estilos, escritos a mano
+front_flask/
+├── app.py                       las vistas: ruta → pantalla. Nada más
+├── cliente_api.py               la capa de datos del front: lo ÚNICO que habla HTTP
+├── requirements.txt             Flask y requests. NO hay driver de base de datos
+├── Dockerfile                   python:3.12-slim, sin asyncpg
+├── templates/
+│   ├── base.html                el marco y el menú
+│   ├── inicio.html
+│   └── <recurso>/               lista.html y formulario.html, uno por recurso
+└── static/estilos.css           los estilos, escritos a mano
 ```
 
-**Que en el `.csproj` no aparezca ningún paquete de acceso a datos no es un
-olvido: es la comprobación** de que este proceso no puede llegar a
-PostgreSQL ni queriendo.
+**Que en el `requirements.txt` no aparezca `asyncpg` no es un olvido: es la
+comprobación** de que este proceso no puede llegar a PostgreSQL ni queriendo.
+Son dos líneas —`flask` y `requests`— y las dos que faltan dicen más que las
+dos que están.

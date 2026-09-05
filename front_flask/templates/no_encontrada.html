@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Esa página no existe{% endblock %}
+
+{% block contenido %}
+<div class="vacio">
+  <h1>Esa página no existe</h1>
+  <p class="nota">
+    La dirección que escribió no corresponde a ninguna pantalla de este
+    sistema.
+  </p>
+  <a class="boton primario" href="{{ url_for('inicio') }}">Ir al inicio</a>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block titulo %}Programas{% endblock %}
+
+{% block contenido %}
+
+{# El listado de programas.
+
+   Las columnas están escritas aquí, con sus nombres. Cuando la v2 traiga
+   más tablas, cada una tendrá su plantilla — no una genérica que recorra
+   una descripción, porque entonces esta pantalla no podría decir lo que
+   solo vale para el programa. #}
+
+<div class="encabezado">
+  <div>
+    <h1>Programas</h1>
+    <p class="nota">
+      Los programas académicos, con sus cohortes y sus graduados.
+      Las fichas retiradas dejan de aparecer aquí, pero no se borran: lo que
+      ya quedó registrado con ellas se conserva.
+    </p>
+  </div>
+  <a class="boton primario" href="{{ url_for('crear_programa') }}">Agregar</a>
+</div>
+
+{% if filas %}
+  <div class="tabla-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Nivel</th>
+          <th>Ciudad</th>
+          <th>Cantidad de graduados</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in filas %}
+        <tr>
+          <td><span class="codigo">{{ fila["id"] }}</span></td>
+          <td>{{ fila["nombre"] if fila["nombre"] is not none else "—" }}</td>
+          <td>{{ fila["tipo"] if fila["tipo"] is not none else "—" }}</td>
+          <td>{{ fila["nivel"] if fila["nivel"] is not none else "—" }}</td>
+          <td>{{ fila["ciudad"] if fila["ciudad"] is not none else "—" }}</td>
+          <td>{{ fila["cant_graduados"] if fila["cant_graduados"] is not none else "—" }}</td>
+          <td class="acciones">
+            <a class="boton" href="{{ url_for('editar_programa', id=fila['id']) }}">Editar</a>
+
+            {# POST y no un enlace: un GET que borra lo puede disparar el
+               navegador solo al precargar la página. #}
+            <form method="post"
+                  action="{{ url_for('eliminar_programa', id=fila['id']) }}"
+                  onsubmit="return confirm('¿Retirar la ficha {{ fila['id'] }}?');">
+              <button class="boton peligro" type="submit">Retirar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="nota">{{ filas|length }} ficha(s).</p>
+
+{% else %}
+  {# Vacío NO es un error, y la pantalla lo distingue: si la API está caída,
+     arriba hay además un aviso rojo. #}
+  <div class="vacio">
+    <p>Todavía no hay programas.</p>
+    <p class="nota">Use «Agregar» para crear la primera ficha.</p>
+    <a class="boton primario" href="{{ url_for('crear_programa') }}">Agregar</a>
+  </div>
+{% endif %}
+
+{% endblock %}

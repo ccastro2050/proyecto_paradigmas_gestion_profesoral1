@@ -126,13 +126,13 @@ versión está a medias.
 
 | # | Tarea | Archivo |
 |---|---|---|
-| 1 | El proyecto Blazor Server, **sin ningún paquete de acceso a datos** | `front_blazor/FrontGestion.csproj` |
-| 2 | `ServicioPrograma`: seis métodos, uno por operación | `Servicios/ServicioPrograma.cs` |
-| 3 | El tipo `Resultado<T>`, para que las páginas no vean códigos de estado | `Servicios/ServicioPrograma.cs` |
-| 4 | La traducción del sobre de error a textos para el usuario | `Servicios/ServicioPrograma.cs` |
-| 5 | El marco y el menú, con **un enlace por pantalla** | `Components/Layout/` |
-| 6 | La pantalla del CRUD, con los **dos botones** de guardar | `Components/Pages/Programas.razor` |
-| 7 | Los estilos, escritos a mano | `wwwroot/app.css` |
+| 1 | El proyecto Flask, **sin ningún paquete de acceso a datos** | `front_flask/app.py` |
+| 2 | `cliente_api.py`: seis funciones, una por operación | `front_flask/cliente_api.py` |
+| 3 | La forma `(ok, datos, errores)`, para que las plantillas no vean códigos de estado | `front_flask/cliente_api.py` |
+| 4 | La traducción del error **al español**: el 422 de Pydantic llega en inglés | `front_flask/cliente_api.py` |
+| 5 | El marco y el menú, con **un enlace por pantalla** | `templates/base.html` |
+| 6 | El listado y el formulario, con los **dos botones** de guardar | `templates/programas/` |
+| 7 | Los estilos, escritos a mano | `static/estilos.css` |
 | 8 | El servicio en el compose, en el **8027**, sin `depends_on: postgres` | `docker-compose.yml` |
 | 9 | La prueba de humo del front | `pruebas_humo/humo_front.py` |
 

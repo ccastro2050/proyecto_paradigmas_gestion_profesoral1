@@ -138,7 +138,7 @@ sin pelearse con ninguno:
 |---|---|---|
 | API gestión profesoral | **8029** | v1 |
 | PostgreSQL | **15441** | v1 |
-| **Front Blazor** | **8027** | la pantalla de esta misma versión |
+| **Front Flask** | **8027** | la pantalla de esta misma versión |
 
 Quedan escritos en el artículo de convenciones de la constitución —incluido
 el del front— para que ninguna versión futura los pise.
@@ -446,7 +446,7 @@ New-Item -ItemType File postman\coleccion_v1.postman_collection.json
 #### Los dos archivos de configuración de Git, y por qué importan aquí
 
 `.gitignore` y `.gitattributes` se suelen despachar como trámite: se copian
-de cualquier lado y listo. Para un proyecto .NET que corre en contenedores
+de cualquier lado y listo. Para un proyecto que corre en contenedores
 eso no alcanza, y **las dos cosas que faltan cuando se copian sin pensar
 son de las que hacen perder una tarde entera**.
 
@@ -478,9 +478,9 @@ buscar el problema en Docker o en el script. La línea que lo previene:
 **`.gitignore` — lo que NUNCA entra al repositorio.** Tres familias:
 
 ```gitignore
-# 1. Compilados de .NET: los genera 'python -m compileall', jamás se versionan
-bin/
-obj/
+# 1. Los compilados de Python: los genera el intérprete, jamás se versionan
+__pycache__/
+*.pyc
 
 # 2. Basura de IDE y borradores personales
 *.user

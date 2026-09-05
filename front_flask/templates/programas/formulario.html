@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block titulo %}{{ "Editar" if editando else "Agregar" }} — Programas{% endblock %}
+
+{% block contenido %}
+
+{# El formulario de el programa: sirve para agregar y para editar.
+
+   La diferencia entre los dos usos está en `editando`, y se ve en dos
+   sitios: la llave va de solo lectura al editar, y aparecen DOS botones de
+   guardar en vez de uno. #}
+
+<div class="encabezado">
+  <div>
+    <h1>{{ "Editar" if editando else "Agregar" }} el programa</h1>
+    <p class="nota">
+      {% if editando %}
+        Código identifica la ficha y no se cambia. Si está mal, se
+        agrega otra y se retira ésta.
+      {% else %}
+        Un número entero, y es la llave de la ficha.
+      {% endif %}
+    </p>
+  </div>
+  <a class="boton" href="{{ url_for('listar_programas') }}">Volver</a>
+</div>
+
+<form method="post" class="tarjeta-formulario">
+
+  {# LA LLAVE. Al editar va de solo lectura: es la identidad de la ficha, lo
+     que la base llama llave primaria. Un campo que el usuario puede escribir
+     pero el sistema no puede cambiar es una promesa falsa. #}
+  <label>
+    Código
+    <input type="number" name="id" step="1" value="{{ ficha["id"] if ficha else "" }}"
+           {{ "readonly" if editando }}>
+    {% if not editando %}<span class="ayuda">Un número entero, y es la llave de la ficha.</span>{% endif %}
+  </label>
+
+  <label>
+    Nombre
+    <input type="text" name="nombre" maxlength="60" value="{{ ficha["nombre"] if ficha and ficha["nombre"] is not none else "" }}">
+  </label>
+
+  <label>
+    Tipo
+    <input type="text" name="tipo" maxlength="45" value="{{ ficha["tipo"] if ficha and ficha["tipo"] is not none else "" }}">
+    <span class="ayuda">Pregrado, posgrado…</span>
+  </label>
+
+  <label>
+    Nivel
+    <input type="text" name="nivel" maxlength="45" value="{{ ficha["nivel"] if ficha and ficha["nivel"] is not none else "" }}">
+  </label>
+
+  <label>
+    Fecha de creación
+    <input type="text" name="fecha_creacion" maxlength="45" value="{{ ficha["fecha_creacion"] if ficha and ficha["fecha_creacion"] is not none else "" }}">
+    <span class="ayuda">Es texto, no un calendario: así lo declara el esquema dado.</span>
+  </label>
+
+  <label>
+    Número de cohortes
+    <input type="text" name="numero_cohortes" maxlength="45" value="{{ ficha["numero_cohortes"] if ficha and ficha["numero_cohortes"] is not none else "" }}">
+  </label>
+
+  <label>
+    Cantidad de graduados
+    <input type="text" name="cant_graduados" maxlength="45" value="{{ ficha["cant_graduados"] if ficha and ficha["cant_graduados"] is not none else "" }}">
+  </label>
+
+  <label>
+    Fecha de actualización
+    <input type="text" name="fecha_actualizacion" maxlength="45" value="{{ ficha["fecha_actualizacion"] if ficha and ficha["fecha_actualizacion"] is not none else "" }}">
+  </label>
+
+  <label>
+    Ciudad
+    <input type="text" name="ciudad" maxlength="45" value="{{ ficha["ciudad"] if ficha and ficha["ciudad"] is not none else "" }}">
+  </label>
+
+  <label>
+    Facultad
+    <input type="number" name="facultad" step="1" value="{{ ficha["facultad"] if ficha and ficha["facultad"] is not none else "" }}">
+    <span class="ayuda">Un número. En este módulo la tabla de facultades no existe.</span>
+  </label>
+
+  <label>
+    Fecha de cierre
+    <input type="text" name="fecha_cierre" maxlength="45" value="{{ ficha["fecha_cierre"] if ficha and ficha["fecha_cierre"] is not none else "" }}">
+    <span class="ayuda">Opcional: un programa abierto no tiene fecha de cierre.</span>
+  </label>
+
+  {# ==============================================================
+     LOS DOS BOTONES, QUE NO HACEN LO MISMO
+
+       · «Guardar la ficha completa» manda todo, así que un dato
+         obligatorio en blanco se rechaza (nombre, tipo, nivel, fecha de creación, número de cohortes, cantidad de graduados, fecha de actualización, ciudad, facultad).
+       · «Guardar solo lo que cambié» manda únicamente lo diligenciado,
+         así que el mismo formulario a medio llenar sí se guarda.
+
+     El mismo formulario, dos comportamientos, y la diferencia no la decide
+     ningún `if` de negocio: la decide QUÉ SE ENVÍA.
+     ============================================================== #}
+  {% if editando %}
+    <div class="pareja">
+      <button class="boton primario" type="submit" name="verbo" value="completa">
+        Guardar la ficha completa
+      </button>
+      <button class="boton" type="submit" name="verbo" value="parcial">
+        Guardar solo lo que cambié
+      </button>
+    </div>
+    <span class="ayuda">
+      «La ficha completa» exige que estén diligenciados nombre, tipo, nivel, fecha de creación, número de cohortes, cantidad de graduados, fecha de actualización, ciudad, facultad.
+      «Solo lo que cambié» guarda lo que usted escribió y deja lo demás como
+      estaba.
+    </span>
+  {% else %}
+    <button class="boton primario" type="submit">Agregar</button>
+  {% endif %}
+
+</form>
+
+{% endblock %}

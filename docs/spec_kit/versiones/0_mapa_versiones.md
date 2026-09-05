@@ -13,7 +13,7 @@
 **Cada versión entrega su parte de la API *y* su parte del front**, y una
 versión **no está cerrada** si la API responde y la pantalla no.
 
-El front es **Blazor Server** sobre .NET 10, en un tercer contenedor, en el
+El front es **Flask** sobre Python 3.12, en un tercer contenedor, en el
 puerto **8027**. Habla con la API solo por HTTP: no tiene cadena
 de conexión, ni driver de base de datos, ni servicio `postgres` en su
 `depends_on`.

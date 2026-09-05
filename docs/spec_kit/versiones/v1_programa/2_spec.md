@@ -34,7 +34,9 @@ las cinco.
 - El docente y todo lo que cuelga de él —estudios, evaluaciones,
   reconocimientos, experiencia—: eso es la v2.
 - Autenticación, JWT, roles ni usuarios: eso es la v3.
-- Frontend, dashboard ni consultas multitabla: eso es la v4.
+- Dashboard ni consultas multitabla: eso es la v4.
+- Más pantallas que la de `programa`: las demás tablas llegan en la
+  v2, cada una con la suya.
 - **Reactivar** un registro inactivo (`activo = TRUE`).
 - Validar que las fechas sean fechas: en esta versión son texto, tal como
   las declara el esquema dado (C6).

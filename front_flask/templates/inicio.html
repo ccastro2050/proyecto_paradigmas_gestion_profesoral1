@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Gestión Profesoral{% endblock %}
+
+{% block contenido %}
+<div class="portada">
+  <h1>Módulo de Gestión Profesoral</h1>
+  <p class="nota">Los programas académicos, con sus cohortes y sus graduados.</p>
+</div>
+
+<div class="tarjetas">
+
+  <article class="tarjeta">
+    <h2>Programas</h2>
+    <p>Los programas académicos, con sus cohortes y sus graduados.</p>
+    <a class="boton primario" href="{{ url_for('listar_programas') }}">
+      Ver el listado
+    </a>
+  </article>
+
+  {# La segunda tarjeta NO es un enlace, y es deliberado: dice lo que esta
+     versión NO hace. Un menú que promete pantallas que no existen es peor
+     que un menú corto. #}
+  <article class="tarjeta apagada">
+    <h2>Las demás tablas</h2>
+    <p>
+      Esta versión construye <strong>una</strong> tabla completa, de punta a
+      punta: su API y su pantalla. Las demás llegan en las versiones
+      siguientes, cada una con la suya.
+    </p>
+  </article>
+
+</div>
+{% endblock %}

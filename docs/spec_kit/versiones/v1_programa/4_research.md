@@ -196,29 +196,34 @@ datos. **Estado:** vigente.
 ## El front es un TERCER PROCESO
 
 **Lo que se decidió.** El front va en su propio contenedor, en su propio puerto
-(8027), con su propio proyecto de .NET. Habla con la API **solo
-por HTTP**.
+(8027), con su propia aplicación de Flask. Habla con la API
+**solo por HTTP**.
 
 **Lo que se descartó.**
 
 | Alternativa | Por qué no |
 |---|---|
 | **Servir las páginas desde la misma API** | Un solo proceso: la separación pasaría a ser una convención que nadie puede verificar. Y apagar «la API» apagaría la pantalla, así que el criterio P4 dejaría de existir |
-| **Un `ApiService` genérico** con la tabla como parámetro | Sección 6.1 de la metodología: un método `Listar(string tabla)` no dice qué recursos existen, y el compilador deja de revisar |
+| **Un cliente genérico** con la tabla como parámetro | Sección 6.1 de la metodología: un método `Listar(string tabla)` no dice qué recursos existen, y el compilador deja de revisar |
 | **Escribir el front en Python**, como la API | Se perdería lo que este módulo demuestra por construcción: con dos lenguajes, compartir código es imposible y la separación deja de ser una promesa |
 
 **Cómo se verifica que la decisión se cumple**, que es lo que la vuelve algo
 más que una intención:
 
-1. El `.csproj` del front **no tiene ningún paquete** de acceso a datos.
-2. El servicio `front-blazor` **no depende de `postgres`** en el compose.
+1. El `requirements.txt` del front trae **Flask y `requests`, nada más**.
+2. El servicio `front-flask` **no depende de `postgres`** en el compose.
 3. Y la prueba: `docker compose stop api-gestion` deja la pantalla en
    pie, con su aviso y **sin un solo dato**.
 
-> **Este módulo tiene una ventaja que conviene no desperdiciar.** La API está
-> en Python / FastAPI y el front en C#: **no hay forma de compartir código**,
-> ni por descuido. Lo que en un proyecto de un solo lenguaje es una regla que
-> alguien puede romper, aquí lo impide el stack.
+> **Aquí la regla hay que sostenerla a pulso.** La API y el front están los
+> dos en Python, uno al lado del otro: un `sys.path.append("../api_gestion")`
+> bastaría para importar los modelos de la API, y funcionaría.
+>
+> Se decidió no hacerlo, y esa decisión enseña más que una imposibilidad
+> técnica: una separación que el compilador impide se cumple sola y no dice
+> nada; una que se podría romper con una línea y no se rompe es arquitectura.
+>
+> Lo que la sostiene son las tres comprobaciones de arriba, no el lenguaje.
 
 ---
 

@@ -151,7 +151,7 @@ Comprueba que las pantallas responden, que **los datos que muestran son los que
 dio la API**, que no aparece jerga, y —lo que importa— que **con la API apagada
 la pantalla sigue en pie con su aviso**. La apaga y la vuelve a encender sola.
 
-**Lo que esa prueba NO puede hacer:** Blazor Server manda los clics por una
+**Lo que esa prueba NO puede hacer:** Flask manda cada clic como una
 conexión persistente, así que un guion no puede llenar el formulario. Eso queda
 para el recorrido a mano.
 

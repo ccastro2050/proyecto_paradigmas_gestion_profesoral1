@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Gestión Profesoral{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+  {# ==================================================================
+     LO QUE ESTA PANTALLA NO DICE, Y POR QUÉ
+
+     Aquí NO se nombra el stack —ni Flask, ni FastAPI, ni PostgreSQL— y el
+     pie NO explica la arquitectura. Quien usa esto administra el módulo de
+     Gestión Profesoral, y esa información no le sirve para nada: es ruido entre
+     él y su tarea.
+
+     Todo eso está donde le corresponde, para quien SÍ lo necesita: el
+     README, la constitución y el documento de contratos.
+     ================================================================== #}
+
+  <header>
+    <div class="barra">
+      <div class="contenedor barra-interna">
+        <a class="marca" href="{{ url_for('inicio') }}">Gestión Profesoral</a>
+        <span class="dependencia">Universidad de Ejemplo</span>
+      </div>
+    </div>
+
+    {# EL MENÚ, con un enlace por pantalla. Cuando la v2 traiga más tablas
+       se agrega aquí, y aparece en todas las pantallas. La clase `activo`
+       sale del endpoint, que es la dirección de verdad. #}
+    <nav class="menu">
+      <div class="contenedor menu-interno">
+        <a href="{{ url_for('inicio') }}"
+           class="{{ 'activo' if request.endpoint == 'inicio' }}">Inicio</a>
+        <a href="{{ url_for('listar_programas') }}"
+           class="{{ 'activo' if request.endpoint and 'programa' in request.endpoint or request.endpoint == 'listar_programas' }}"
+           >Programas</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="contenedor">
+
+    {# Los avisos que app.py dejó con flash(). Un párrafo por mensaje: cuando
+       la API devuelve tres errores de validación, se ven los tres. #}
+    {% with avisos = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensaje in avisos %}
+        <p class="aviso {{ categoria }}">{{ mensaje }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    {% block contenido %}{% endblock %}
+
+  </main>
+
+  <footer class="contenedor">
+    <p>
+      Vicerrectoría Académica<br>
+      Universidad de Ejemplo
+    </p>
+  </footer>
+
+</body>
+</html>

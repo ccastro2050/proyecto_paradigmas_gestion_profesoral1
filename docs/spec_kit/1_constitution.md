@@ -50,27 +50,35 @@ dos stacks. Se compensa recortando el alcance: esta v1 toma **una** tabla.
 
 ### El front es un TERCER PROCESO
 
-**Blazor Server**, en su propio proyecto y en su propio contenedor, hablando
+**Flask + Jinja2**, en su propio proyecto y en su propio contenedor, hablando
 con la API **solo por HTTP**. Tres cosas que se comprueban, no que se prometen:
 
-1. Su `.csproj` **no tiene ningún paquete de acceso a datos**.
+1. Su `requirements.txt` trae **Flask y `requests`, y nada más**:
+   ni FastAPI, ni el driver de PostgreSQL.
 2. Su servicio en el compose **no depende de `postgres`**.
 3. Y la prueba: **apagando la API, la pantalla sigue en pie**, con su aviso y
    **sin un solo dato**.
 
-### Y no puede compartir código con la API, y eso es una ventaja
+### Podría compartir código con la API, y precisamente por eso no lo hace
 
-La API de este módulo está en **Python / FastAPI** y el front en C#. Un
-proyecto de .NET no puede referenciar un módulo de Python: **compartir una
-clase es imposible**, no una regla que haya que recordar.
+La API de este módulo está en **Python / FastAPI** y el front **también está
+en Python**. Están uno al lado del otro en el disco: bastaría un
+`sys.path.append("../api_gestion")` para importar sus modelos y sus servicios.
+Funcionaría.
 
-Eso es lo que vuelve **verificable** la afirmación que todo el curso repite —el
-front solo habla por HTTP—. Con un solo lenguaje hay que creerla; con dos, se
-comprueba sola.
+Y está prohibido, porque los dos dejarían de ser procesos independientes:
+renombrar un método adentro de la API rompería la pantalla **sin que nadie
+tocara el contrato**. Lo único que comparten es el JSON.
 
-> El front tiene su propia clase `Programa`, que se parece a la del modelo
-> de la API porque el contrato es el mismo. Lo único que viaja entre los dos
-> procesos es JSON.
+> **Aquí la regla hay que sostenerla a pulso, y eso la hace mejor lección.**
+> Una separación que el compilador impide no enseña nada: se cumple sola. Una
+> que se podría romper con una línea y no se rompe es una decisión de
+> arquitectura, y hay que saber por qué se tomó.
+>
+> Lo que sí es verificable, y se verifica: el front **no tiene** el driver de
+> PostgreSQL en su imagen, su servicio **no depende** de la base en el
+> compose, y con la API apagada la pantalla queda en pie **sin un solo
+> dato**.
 
 ### La pantalla habla el idioma del usuario
 

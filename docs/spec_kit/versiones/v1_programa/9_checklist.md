@@ -42,7 +42,7 @@
 - [ ] Los 7 RF cubren los 5 verbos, el listado con límite y el
       diagnóstico.
 - [ ] [2_spec.md](2_spec.md) tiene su **NO incluye** explícito, y ahí están
-      las FK, el JWT, el front y la reactivación.
+      las FK, el JWT, las demás pantallas y la reactivación.
 - [ ] Cada endpoint de [6_contracts.md](6_contracts.md) documenta sus
       desenlaces de **ERROR**, no solo el feliz.
 - [ ] [5_data_model.md](5_data_model.md) dice con todas las letras que la
@@ -105,7 +105,10 @@
       se comprueba —**sobre el texto visible**, no sobre el HTML—.
 - [ ] Está escrito que el front **no comparte código** con la API, y por qué
       (Artículo 1.1).
-- [ ] Está declarado **lo que la prueba automática NO puede hacer** con Blazor
-      Server, y qué queda para el recorrido a mano.
-- [ ] El front tiene **un servicio por recurso**, no uno genérico con el nombre
-      de la tabla como parámetro.
+- [ ] Está declarado qué comprueba la prueba automática y qué queda para el
+      recorrido a mano. Con formularios corrientes el guion llega hasta el
+      final; lo que no puede juzgar es si la pantalla **se entiende**.
+- [ ] El front tiene **una función por operación y por recurso**, no una
+      genérica con el nombre de la tabla como parámetro.
+- [ ] Los errores que la API devuelve en inglés **se traducen antes de
+      mostrarse**, y en un solo sitio.

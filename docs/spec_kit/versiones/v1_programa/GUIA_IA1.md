@@ -225,13 +225,13 @@ pantalla** (Artículo 1.1), y esto es lo que hay que agregarle al prompt.
 
 ```text
 9. LA VERSIÓN INCLUYE SU PANTALLA, y es la mitad del trabajo, no un añadido.
-   Un FRONT en BLAZOR SERVER (.NET 10), en su propio proyecto y en su propio
-   contenedor, publicando el puerto 8027:
+   Un FRONT en FLASK + JINJA2 (Python 3.12), en su propia aplicación y en su
+   propio contenedor, publicando el puerto 8027:
 
    · una pantalla por recurso, con DIRECCIÓN PROPIA (/programas), nunca
      una ruta con el nombre de la tabla como parámetro;
    · un SERVICIO POR RECURSO —ServicioPrograma con seis métodos—, nunca un
-     ApiService genérico con la tabla como parámetro;
+     cliente genérico con la tabla como parámetro;
    · la pantalla NO le habla al usuario en jerga: ni PUT, ni PATCH, ni 422, ni
      rutas de la API. Los dos botones de guardar se llaman "Guardar la ficha
      completa" y "Guardar solo lo que cambié";
@@ -243,14 +243,18 @@ pantalla** (Artículo 1.1), y esto es lo que hay que agregarle al prompt.
 
    a) Servir las páginas desde la misma API. NO: son dos procesos, y hay que
       poder demostrarlo apagando uno.
-   b) Un ApiService genérico. NO: un servicio por recurso.
+   b) Un cliente genérico. NO: una función por operación y por recurso.
    c) Meter Bootstrap o cualquier biblioteca por CDN. NO: el CSS va escrito a
       mano. Un front que necesita internet para verse bien no arranca en un
       salón sin red.
 
-   d) Y no intentes compartir clases entre la API y el front: la API está en
-      Python / FastAPI y el front en C#. No se puede, y esa
-      imposibilidad es justamente lo que este módulo demuestra.
+   d) Y NO compartas código entre la API y el front. Las dos están en Python
+      y en carpetas vecinas, así que un sys.path.append("../api_gestion") o un
+      "from api_gestion.models import ..." FUNCIONARÍA. Está prohibido: son dos
+      procesos, y lo único que comparten es el JSON. El front trabaja con
+      diccionarios, no con los modelos de la API.
+      Que aquí sí se pueda y no se haga es el punto: una separación que el
+      lenguaje impide se cumple sola; ésta hay que sostenerla.
 
 Y hay un criterio que se comprueba apagando un contenedor: con la API apagada,
 la pantalla tiene que SEGUIR RESPONDIENDO, con su menú y su aviso, y SIN UN
@@ -262,10 +266,10 @@ debe.
 
 | Qué | Por qué pasa | Qué revisar |
 |---|---|---|
-| **Un `ApiService` genérico** | Es más corto, y con una sola tabla ni se nota | ¿El servicio se llama `ServicioPrograma` o `ApiService`? |
-| **Bootstrap por CDN** | Es lo que hace todo el mundo | ¿`App.razor` tiene un `<link>` a un dominio externo? |
+| **Un cliente genérico** | Es más corto, y con una sola tabla ni se nota | ¿Las funciones se llaman `listar_programas` o `listar(recurso)`? |
+| **Bootstrap por CDN** | Es lo que hace todo el mundo | ¿`templates/base.html` tiene un `<link>` a un dominio externo? |
 | **Tratar el 204 como error** | Un 204 no trae cuerpo, y el código que espera JSON revienta | ¿Qué muestra la pantalla con la tabla vacía? Debe decir «todavía no hay», no dar error |
-| **Olvidar el `[JsonPropertyName]`** | La API manda `nombre` y el front llama la propiedad `Nombre` | Los campos llegan VACÍOS, sin ningún error. Es el defecto más difícil de ver |
+| **Dejar el error de Pydantic en inglés** | El 422 de FastAPI dice «String should have at least 1 character» | ¿Qué frase sale en pantalla cuando se deja un campo obligatorio vacío? Tiene que estar en español y con el nombre de la etiqueta |
 
 **Y la pregunta que hay que hacerle siempre, porque no la contesta sola:**
 
@@ -291,7 +295,7 @@ Cree la carpeta de su proyecto, ábrala en VS Code (*File → Open Folder*) y, e
 la terminal integrada (*Terminal → New Terminal*, PowerShell), parado en ella:
 
 ```powershell
-mkdir docs\spec_kit\versiones\v1_programa, db, api_gestion, api_gestion\controllers, api_gestion\models, api_gestion\pruebas, api_gestion\repositorios, api_gestion\repositorios\abstracciones, api_gestion\servicios, api_gestion\servicios\abstracciones, front_blazor, front_blazor\Components, front_blazor\Components\Layout, front_blazor\Components\Pages, front_blazor\Servicios, front_blazor\wwwroot, pruebas_humo
+mkdir docs\spec_kit\versiones\v1_programa, db, api_gestion, api_gestion\controllers, api_gestion\models, api_gestion\pruebas, api_gestion\repositorios, api_gestion\repositorios\abstracciones, api_gestion\servicios, api_gestion\servicios\abstracciones, front_flask, front_flask\static, front_flask\templates, front_flask\templates\programas, pruebas_humo
 ```
 
 ### 2. Los archivos VACÍOS
@@ -301,12 +305,12 @@ entregue. Que nazcan vacíos y con su nombre puesto es lo que le da forma al
 trabajo: se ve de una vez cuántas piezas son y dónde va cada una.
 
 ```powershell
-New-Item .gitattributes, .gitignore, api_gestion\Dockerfile, api_gestion\controllers\__init__.py, api_gestion\controllers\programa_controller.py, api_gestion\main.py, api_gestion\models\__init__.py, api_gestion\models\programa.py, api_gestion\pruebas\prueba_capas.py, api_gestion\repositorios\__init__.py, api_gestion\repositorios\abstracciones\__init__.py, api_gestion\repositorios\abstracciones\i_repositorio_programa.py, api_gestion\repositorios\repositorio_programa_postgresql.py, api_gestion\requirements.txt, api_gestion\servicios\__init__.py, api_gestion\servicios\abstracciones\__init__.py, api_gestion\servicios\abstracciones\i_servicio_programa.py, api_gestion\servicios\ensamblador.py, api_gestion\servicios\servicio_programa.py, docker-compose.yml, front_blazor\Components\App.razor, front_blazor\Components\Layout\MainLayout.razor, front_blazor\Components\Layout\NavMenu.razor, front_blazor\Components\Pages\Home.razor, front_blazor\Components\Pages\Programas.razor, front_blazor\Components\Routes.razor, front_blazor\Components\_Imports.razor, front_blazor\Dockerfile, front_blazor\FrontGestion.csproj, front_blazor\Program.cs, front_blazor\Servicios\ServicioPrograma.cs, front_blazor\appsettings.json, front_blazor\wwwroot\app.css, pruebas_humo\humo_front.py
+New-Item .gitattributes, .gitignore, api_gestion\Dockerfile, api_gestion\controllers\__init__.py, api_gestion\controllers\programa_controller.py, api_gestion\main.py, api_gestion\models\__init__.py, api_gestion\models\programa.py, api_gestion\pruebas\prueba_capas.py, api_gestion\repositorios\__init__.py, api_gestion\repositorios\abstracciones\__init__.py, api_gestion\repositorios\abstracciones\i_repositorio_programa.py, api_gestion\repositorios\repositorio_programa_postgresql.py, api_gestion\requirements.txt, api_gestion\servicios\__init__.py, api_gestion\servicios\abstracciones\__init__.py, api_gestion\servicios\abstracciones\i_servicio_programa.py, api_gestion\servicios\ensamblador.py, api_gestion\servicios\servicio_programa.py, docker-compose.yml, front_flask\Dockerfile, front_flask\app.py, front_flask\cliente_api.py, front_flask\requirements.txt, front_flask\static\estilos.css, front_flask\templates\base.html, front_flask\templates\inicio.html, front_flask\templates\no_encontrada.html, front_flask\templates\programas\formulario.html, front_flask\templates\programas\lista.html, pruebas_humo\humo_front.py
 ```
 
 > **Fíjese en lo que la lista tiene y en lo que no.**
 >
-> **Tiene** los archivos del front —`front_blazor\…`— porque **la versión
+> **Tiene** los archivos del front —`front_flask\…`— porque **la versión
 > incluye su pantalla** (Artículo 1.1). Son la mitad del trabajo, no un
 > añadido, y por eso nacen vacíos junto a los de la API.
 >
@@ -330,7 +334,7 @@ chat, y los scripts de `db\` son la base de datos ya escrita.
 - [ ] `docs\spec_kit\1_constitution.md` existe y tiene contenido.
 - [ ] `docs\spec_kit\versiones\v1_programa\` tiene **9 archivos**.
 - [ ] `db\` tiene sus scripts **con contenido**, no vacíos.
-- [ ] `front_blazor\` existe con sus carpetas, aunque los archivos estén
+- [ ] `front_flask\` existe con sus carpetas, aunque los archivos estén
       vacíos: si no está, la versión va a nacer sin la mitad que se ve.
 
 Si algo está vacío o falta, es el paso 3.
