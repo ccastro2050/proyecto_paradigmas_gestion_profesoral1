@@ -47,8 +47,10 @@ las cinco.
 `GET /api/programa` → 200 con el sobre `{tabla, limite, total, datos:[…]}`.
 - Devuelve **solo los activos**.
 - Parámetro opcional `limite` (entero > 0; por defecto 1000).
-- Sin filas activas → **204** sin cuerpo. **Este es el estado inicial**: la
-  tabla arranca vacía.
+- Sin filas activas → **204** sin cuerpo. Sigue en el contrato, pero
+  **ya no es el estado inicial**: la tabla arranca con 191 filas
+  (§3 de [5_data_model.md](5_data_model.md)). Para ver el 204 hay que
+  vaciarla a propósito.
 
 ### RF2 — Obtener por código (GET + parámetro de ruta)
 `GET /api/programa/{id}` → 200 con el programa.
@@ -89,27 +91,25 @@ que es el único opcional.
 
 ## 5. Criterios de aceptación
 
-1. **Un solo comando.** `docker compose up -d --build` deja corriendo SQL
-   Server —con la base y sus 19 tablas— y la API.
+1. **Un solo comando.** `docker compose up -d --build` deja corriendo PostgreSQL —con la base y sus 19 tablas— y la API.
    `GET http://localhost:8029/` responde `"version":"v1"`.
-2. **El sistema arranca vacío.** `GET /api/programa` responde **204 sin
-   cuerpo**.
+2. **El sistema arranca CON DATOS.** `GET /api/programa` responde **200**
+   con `total: 191`.
 3. **Crear y listar.** Un `POST` con los campos obligatorios responde 200;
-   después, `GET /api/programa` responde **200 con `total: 1`**.
+   después, `GET /api/programa` responde **200 con `total: 192`**.
 4. **Ciclo de los cinco verbos.** `POST` crea el código `9001` → `PUT` lo
    reemplaza → `PATCH` le cambia solo `ciudad` → `GET` lo confirma →
    `DELETE` lo desactiva, y un **segundo** `DELETE` responde **404**.
    Además, un `PUT` sin el campo `nivel` responde **422** mientras el
    **mismo cuerpo** enviado por `PATCH` responde **200**.
-5. **El borrado es lógico, y se verifica.** Después del `DELETE` el listado
-   vuelve a responder **204**, **y la fila sigue en la base** con
-   `activo = FALSE`.
+5. **El borrado es lógico, y se verifica.** Después del `DELETE` el `total` del
+   listado **baja en uno** —vuelve a 191—, **y la fila sigue en la base**
+   con `activo = FALSE`.
 6. **La validación es la frontera.** `POST` sin `nivel` → **422** con
    `errores:[…]`; `POST` con un `id` que no es número → **422**; `POST` con
    un código que ya existe → **500**. En ninguno se toca la base.
 7. **Prueba de capas.** El proyecto `pruebas/` ejecuta el servicio con un
-   **repositorio de mentiras** y todas sus verificaciones pasan **con SQL
-   Server apagado**.
+   **repositorio de mentiras** y todas sus verificaciones pasan **con PostgreSQL apagado**.
 
 ## 6. Clarificaciones
 
@@ -122,7 +122,8 @@ que es el único opcional.
 | C2 | `area_conocimiento.disciplina` es `VARCHAR(60)` y el valor más largo tiene **124** caracteres | **Se agranda a `VARCHAR(150)`.** Recortar un catálogo oficial lo falsea | `db/init.sql` |
 | C3 | Ninguna tabla del módulo trae `activo`, pero la metodología exige borrado lógico | **Se agrega `activo BOOLEAN NOT NULL DEFAULT TRUE`** a las 16 tablas del módulo | Artículo 6 · RF6 |
 | C4 | El catálogo trae **"Cienias Naturales"** en 48 de las 218 filas | **Se corrige.** Es un error de digitación de la fuente | `db/init.sql` |
-| C5 | El Excel trae **191 programas**, pero solo cuatro de las once columnas, y seis de las que faltan **no admiten nulos**. ¿Se siembran? | **No.** Rellenar `nivel`, `fecha_creacion`, `numero_cohortes`, `cant_graduados`, `fecha_actualizacion` y `ciudad` para 191 programas sería **inventar datos**. La tabla arranca vacía, y eso da un smoke test que empieza por el 204 | `5_data_model` §3 · criterio 2 |
+| C5 | El Excel trae **191 programas**, pero solo cuatro de las once columnas, y seis de las que faltan **no admiten nulos**. ¿Se siembran? | **Sí, las 191** — y las siete columnas que faltan se resuelven de tres maneras distintas: `nivel` y `ciudad` **se derivan del propio Excel** (del nombre la primera, de la cadena facultad→universidad la segunda), `fecha_cierre` va en `NULL`, y las cuatro que no tienen origen quedan en **`'sin dato'`**. Inventar un número creíble para `cant_graduados` sería peor: un dato inventado que parece real **se cita** | `5_data_model` §3 · criterio 2 |
+| C5.b | Los nombres del Excel llegan hasta **92 caracteres** y la columna es `VARCHAR(60)`: 25 de los 191 no caben | **Se agranda a `VARCHAR(150)`**, el mismo ancho que ya tiene esta columna en el módulo de innovación curricular. Recortar el nombre de un programa lo falsea, y dos anchos distintos para el mismo dato son una discrepancia esperando a alguien que cargue el catálogo en el módulo equivocado | `db/init.sql` [C5] · `models/programa.py` |
 | C6 | Las fechas están declaradas `VARCHAR(45)`, no `DATE`. ¿Se corrige el tipo? | **No en la v1.** El esquema es artefacto **dado** (Artículo 5), y esta versión no hace aritmética de fechas: no las compara, no las ordena, no calcula duraciones. Queda anotado como deuda para la versión que sí lo necesite | `5_data_model` §2 |
 | C7 | `programa.facultad` es un `INT`, pero **en este módulo no existe la tabla `facultad`** | **Se deja como está: un número sin restricción.** El módulo no incluye esa tabla, así que no hay integridad referencial que imponer. La v1 lo trata como un dato más | `5_data_model` §2 |
 | C8 | Un registro inactivo, ¿se puede consultar por su código? | **No: responde 404.** Si el listado los filtra, individualmente tampoco existen | RF2 · RF6 |

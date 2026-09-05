@@ -55,7 +55,7 @@ SUFIJO = "".join(random.choices(string.digits, k=3))
 LLAVE = "9" + SUFIJO
 
 # Las columnas que la tabla debe traer, en el idioma del usuario.
-ETIQUETAS = ('Código', 'Nombre', 'Tipo', 'Nivel', 'Cantidad de graduados', 'Ciudad')
+ETIQUETAS = ('Código', 'Nombre', 'Tipo', 'Nivel', 'Ciudad', 'Facultad')
 
 navegador = urllib.request.build_opener(
     urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
@@ -209,7 +209,7 @@ print("=== 5. EL RECORRIDO COMPLETO, botón por botón ===")
 # ======================================================================
 COMPLETO = {
         "id": LLAVE,
-        "nombre": ("Nombre " + SUFIJO)[:60],
+        "nombre": ("Nombre " + SUFIJO)[:150],
         "tipo": ("Tipo " + SUFIJO)[:45],
         "nivel": ("Nivel " + SUFIJO)[:45],
         "fecha_creacion": ("Fecha de creación " + SUFIJO)[:45],

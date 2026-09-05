@@ -3,7 +3,7 @@
 --
 -- Este script SE DERIVA del que entrega el curso
 -- (ProyectosDeAula/db_scripts/postgresql/gestion_profesoral.pg.sql). No es una copia:
--- le aplica 4 cambios, y aquí están todos, para que quien lo abra sepa
+-- le aplica 5 cambios, y aquí están todos, para que quien lo abra sepa
 -- exactamente qué se tocó y por qué.
 --
 --   1. area_conocimiento.id pasa de INT a VARCHAR(6): los datos del
@@ -16,12 +16,21 @@
 --      tipo de este motor— y no BIT, que es de otro dialecto.  [C3]
 --   4. Se corrige 'Cienias Naturales' -> 'Ciencias Naturales' en 48
 --      filas: es un error de digitación de la fuente.         [C4]
+--   5. programa.nombre pasa de VARCHAR(60) a VARCHAR(150): 25 de los
+--      191 programas del Excel no caben en 60 caracteres, y el más
+--      largo tiene 92. Como estaba, la tabla no podía guardar el
+--      catálogo que le corresponde. Se usa el mismo 150 que ya tiene
+--      esta columna en el módulo de innovación curricular: es la
+--      misma columna del mismo Excel, y dos anchos distintos para
+--      el mismo dato son una discrepancia esperando a que alguien
+--      cargue el catálogo en el módulo equivocado.            [C5]
 --
 -- Las 19 tablas se crean COMPLETAS aunque la v1 solo use una: la base
 -- es infraestructura dada. Lo que crece por versiones es la API.
 --
--- La tabla de la v1 es 'programa', y arranca VACÍA: el Excel de referencia
--- no trae sus filas, y rellenarlas sería inventar datos.
+-- La tabla de la v1 es 'programa', y arranca con sus 191 filas. El Excel
+-- las trae, pero SOLO con 4 de las 11 columnas que la tabla exige; abajo,
+-- junto al INSERT, está qué se derivó y qué se dejó marcado como faltante.
 --
 -- PostgreSQL ejecuta este archivo SOLO en el primer arranque, cuando el
 -- volumen está vacío. Para volver a correrlo: docker compose down -v
@@ -86,7 +95,7 @@ CREATE TABLE linea_investigacion (
 -- Tabla: programa
 CREATE TABLE programa (
     id INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
+    nombre VARCHAR(150) NOT NULL,        -- [C5] 60 no alcanzaba: el más largo tiene 92
     tipo VARCHAR(45) NOT NULL,
     nivel VARCHAR(45) NOT NULL,
     fecha_creacion VARCHAR(45) NOT NULL,
@@ -516,8 +525,217 @@ INSERT INTO area_conocimiento (id, gran_area, area, disciplina) VALUES
     ('6E02', 'Humanidades', 'Otras Humanidades', 'Filosofía'),
     ('6E03', 'Humanidades', 'Otras Humanidades', 'Teología');
 
+-- programa: 191 filas del Excel del módulo.
+--
+--   · id, nombre, tipo y facultad vienen TAL CUAL de la hoja `programa`.
+--   · nivel se DERIVA del nombre ('Maestría en …' -> 'Maestría'); el
+--     `tipo` de la fuente no sirve para eso: dice 'Programa Académico'
+--     en las 191 filas.
+--   · ciudad se DERIVA siguiendo la cadena del propio Excel:
+--     programa.facultad -> facultad.universidad -> universidad.ciudad.
+--   · fecha_creacion, numero_cohortes, cant_graduados y
+--     fecha_actualizacion quedan en 'sin dato': el Excel NO LAS TRAE, y
+--     rellenarlas con números creíbles sería peor que dejar el hueco a
+--     la vista. Son NOT NULL, así que un valor hay que poner: se pone
+--     uno que se lea como lo que es.
+INSERT INTO programa (id, nombre, tipo, nivel, fecha_creacion,
+                      fecha_cierre, numero_cohortes, cant_graduados,
+                      fecha_actualizacion, ciudad, facultad) VALUES
+    (10101, 'Administración de Empresas', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 101),
+    (10102, 'Contaduría Pública', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 101),
+    (10103, 'Economía', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 101),
+    (10104, 'Maestría en Dirección de Empresas', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 101),
+    (10201, 'Ciencia Política', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 102),
+    (10202, 'Derecho', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 102),
+    (10203, 'Relaciones Internacionales', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 102),
+    (10204, 'Maestría en Derecho y Administración de Justicia', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 102),
+    (10301, 'Licenciatura en Filosofía', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10302, 'Licenciatura en Educación para la Primera Infancia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10303, 'Licenciatura en Teología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10304, 'Profesional en Lengua Inglesa', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10305, 'Especialización en Didácticas para Lecturas y Escrituras con Énfasis en Literatura', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10306, 'Especialización en Docencia mediada por las TIC', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10307, 'Especialización en Filosofía Contemporánea', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10308, 'Especialización en Pedagogía y Docencia Universitaria', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10309, 'Maestría en Ciencias de la Educación', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10310, 'Maestría en Didácticas para Lecturas, Escrituras y Literatura', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10311, 'Maestría en Docencia Mediada con las Tic', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10312, 'Maestría en Filosofía Contemporánea', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10313, 'Maestría en Teología de la Biblia', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10314, 'Doctorado en Humanidades Humanismo y Persona', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 103),
+    (10401, 'Tecnología en Automatización Industrial', 'Programa Académico', 'Tecnología', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10402, 'Tecnología en Desarrollo de Software', 'Programa Académico', 'Tecnología', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10403, 'Ingeniería Aeronáutica', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10404, 'Ingeniería Electrónica', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10405, 'Ingeniería Mecatrónica', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10406, 'Ingeniería Multimedia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10407, 'Ingeniería de Sistemas', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10408, 'Ingeniería de Sonido', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10409, 'Especialización en Automatización de Procesos Industriales', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10410, 'Especialización en Negocios y Servicios de Telecomunicaciones', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10411, 'Maestría en Ingeniería Aeroespacial', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10412, 'Maestria en Internet de las Cosas y Control', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 104),
+    (10501, 'Psicología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 105),
+    (10502, 'Especialización en Evaluación y Diagnóstico Neuropsicológico', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 105),
+    (10503, 'Especialización en Intervención Psicológica en situaciones de Crisis', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 105),
+    (10504, 'Especialización en Psicología de la Seguridad y Salud en el Trabajo', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 105),
+    (10505, 'Maestría en Neuropsicología Clínica', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 105),
+    (10506, 'Maestría en Psicología Clínica', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Bogotá', 105),
+    (20101, 'Arquitectura', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 201),
+    (20102, 'Ciencias Culinarias de la gastronomía', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 201),
+    (20103, 'Diseño de Vestuario', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 201),
+    (20104, 'Especialización en Construcción', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 201),
+    (20105, 'Maestría en Arquitectura', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 201),
+    (20106, 'Maestría en Proyecto Urbano', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 201),
+    (20201, 'Administración de Negocios', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20202, 'Contaduría Pública', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20203, 'Economía', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20204, 'Mercadeo y Negocios internacionales', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20205, 'Especialización en Administración de Negocios', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20206, 'Especialización en Administración de la Seguridad', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20207, 'Especialización en Economía Ambiental y Desarrollo Sostenible', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20208, 'Especialización en Finanzas', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20209, 'Especialización en Gerencia Estratégica de Costos', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20210, 'Especialización en Gestión Portuaria y Marítima', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20211, 'Especialización en Mercadeo', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20212, 'Maestría en Dirección Portuaria y Marítima', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20213, 'Maestría en Administración Financiera', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20214, 'Maestría en Gerencia de la Ciencia Tecnología e Innovación', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20215, 'Maestría en Gerencia Turística', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20216, 'Maestría en administración de Negocios', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20217, 'Maestría en administración de Negocios USB Medellín', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20218, 'Maestría en administración de Negocios USB Cali', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20219, 'Doctorado en Administración de Negocios', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 202),
+    (20301, 'Licenciatura en Educación Física', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20302, 'Licenciatura en Educación Infantil', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20303, 'Licenciatura en Literatura y Lengua Castellana', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20304, 'Psicología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20305, 'Especialización en Atención Psicosocial a Víctimas y Sobrevivientes', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20306, 'Especialización en Psicología Clínica con orientación Psicoanalítica', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20307, 'Especialización en Psicología de la Salud Ocupacional', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20308, 'Especialización Virtual en gestión de Proyectos Multimediales para Educación', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20309, 'Maestría en Alta Dirección de Servicios Educativos', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20310, 'Maestría en Educación para la Primera Infancia', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20311, 'Maestría en Educación para la Primera Infancia - Pasto', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20312, 'Maestría en Educación: Desarrollo Humano', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20313, 'Maestría en Educación: Desarrollo Humano convenio USB Medellín', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20314, 'Maestría en Psicología', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20315, 'Doctorado en Educación', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20316, 'Doctorado en Psicología', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20317, 'Posdoctorado en Alta Investigación en Educación Intercultural', 'Programa Académico', 'Posdoctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 203),
+    (20401, 'Derecho', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20402, 'Gobierno y Relaciones Internacionales', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20403, 'Especialización en Derecho Ambiental', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20404, 'Especialización en Derecho Comercial y de la Empresa', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20405, 'Especialización en Derecho Laboral y de la Seguridad Social', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20406, 'Especialización en Derecho Marítimo y Portuario', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20407, 'Especialización en Derecho Procesal Penal y Criminalística', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20408, 'Especialización Virtual en Derecho Procesal', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20409, 'Especialización Virtual en Desarrollo Territorial y gestión pública', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20410, 'Maestría en Derecho', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20411, 'Doctorado en Derecho', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 204),
+    (20501, 'Maestría en Dirección Deportiva y Relaciones Internacionales', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 205),
+    (20502, 'Maestría en Preparación Física en Fútbol', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 205),
+    (20601, 'Ingeniería Agroindustrial', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20602, 'Ingeniería Biomédica', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20603, 'Ingeniería Electrónica', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20604, 'Ingeniería Industrial', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20605, 'Ingeniería Multimedia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20606, 'Ingeniería de Sistemas', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20607, 'Especialización en Gestión Integral de Procesos Productivos y Servicios', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20608, 'Especialización en Gestión Integral de Proyectos', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20609, 'Especialización en Multimedia y experiencia de Usuario', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20610, 'Especialización en Procesos de Desarrollo de Software', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20611, 'Especalización en Redes y Servicios Telemáticos', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20612, 'Maestría en Gerencia de Proyectos', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20613, 'Maestría en Ingeniería: Biotecnología', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20614, 'Maestría en Ingeniería de Software', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (20615, 'Maestría en Tecnologías de la Información para la Analítica de Datos', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cali', 206),
+    (30101, 'Arquitectura', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 301),
+    (30201, 'Administración del Comercio Internacional', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 302),
+    (30202, 'Administración de Negocios', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 302),
+    (30203, 'Contaduría Pública', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 302),
+    (30204, 'Especialización en Administración de la Seguridad', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 302),
+    (30205, 'Especialización en Logística del Comercio Internacional', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 302),
+    (30206, 'Maestría en Administración de Negocios', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 302),
+    (30301, 'Bacteriología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 303),
+    (30302, 'Fisioterapia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 303),
+    (30303, 'Fonoaudiología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 303),
+    (30304, 'Maestría en Bioquímica Clínica', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 303),
+    (30305, 'Maestría en Seguridad y Salud en el Trabajo', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 303),
+    (30401, 'Derecho', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 304),
+    (30402, 'Gobierno y Relaciones Internacionales', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 304),
+    (30403, 'Especialización en Derecho Internacional de los Derechos Humanos y Cultura de la Paz', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 304),
+    (30404, 'Especialización en Derecho Laboral y de la Seguridad Social', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 304),
+    (30405, 'Especialización en Derecho Marítimo y Portuario', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 304),
+    (30501, 'Licenciatura en educación Física, Recreación y Deportes', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30502, 'Licenciatura en Lenguas Modernas con Énfasis en Inglés y Francés', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30503, 'Licenciatura en Educación Infantil', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30504, 'Psicología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30505, 'Especialización en Didácticas para Lecturas y Escrituras con Énfasis en Literatura', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30506, 'Especialización en Pedagogía y Docencia Universitaria', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30507, 'Especialización en Psicología Clínica', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30508, 'Especialización en Psicología de la Educación', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30509, 'Especialización en Teoría y Metodología del Entrenamiento Deportivo', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30510, 'Maestría en Ciencias de la Educación', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30511, 'Maestría en Didáctica del Inglés', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30512, 'Maestría en Psicopatología Clínica y Forense con Énfasis en Intervención con Víctimas', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 305),
+    (30601, 'Ingeniería Agroindustrial', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 306),
+    (30602, 'Ingeniería Industrial', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 306),
+    (30603, 'Ingeniería Multimedia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 306),
+    (30604, 'Ingeniería Química', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 306),
+    (30605, 'Especialización en Ingeniería de Procesos de Refinación de Petróleos y Petroquímicos Básicos', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 306),
+    (30606, 'Maestría en Ingeniería de Procesos', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Cartagena', 306),
+    (40101, 'Arquitectura', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 401),
+    (40102, 'Diseño Industrial', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 401),
+    (40103, 'Maestría en Bioclimática', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 401),
+    (40104, 'Maestría en Creatividad', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 401),
+    (40201, 'Administración de Negocios', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 402),
+    (40202, 'Contaduría Pública', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 402),
+    (40203, 'Negocios Internacionales', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 402),
+    (40204, 'Maestría en Administración de Negocios', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 402),
+    (40205, 'Especialización en Gestión Contable Internacional', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 402),
+    (40301, 'Derecho', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 403),
+    (40302, 'Especialización en Derecho Procesal Constitucional', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 403),
+    (40303, 'Especialización en Servicios Públicos Domiciliarios', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 403),
+    (40401, 'Licenciaura en Educación Artística', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40402, 'Licenciaura en Educación Física y Deporte', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40403, 'Licenciatura en Educación Infantil', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40404, 'Licenciatura en Educación Infantil Extensión Armenia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40405, 'Tecnología en Entrenamiento Deportivo', 'Programa Académico', 'Tecnología', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40406, 'Licenciatura en Humanidades y Lengua Castellana', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40407, 'Especialización en Dirección y Gestión Educativa', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40408, 'Especialización en Gerencia Educativa - Convenio con la FUCN Virtual', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40409, 'Maestría en Ciencias de la Educación', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40410, 'Maestría en Docencia en Educación Superior en convenio con EAFIT', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40411, 'Maestría en Educación: Desarrollo Humano Armenia', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40412, 'Doctorado en Ciencias de la Educación', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 404),
+    (40501, 'Ingeniería Ambiental', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40502, 'Ingeniería de Datos y Software', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40503, 'Ingeniería Industrial', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40504, 'Ingeniería Multimedia', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40505, 'Ingeniería de Sistemas Cibernéticos', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40506, 'Ingeniería de Sonido', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40507, 'Especialización en Gestión de Información y Bases de Datos', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40508, 'Especialización en Posproducción de Audio', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40509, 'Especialización en Seguridad Informática', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40510, 'Especialización en Sistemas de Información Geográfica', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40511, 'Maestría en Geoinformática', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40512, 'Maestría en Ingeniería de Proyectos', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 405),
+    (40601, 'Psicología', 'Programa Académico', 'Pregrado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40602, 'Especialización en Medición y Evaluación Psicológica', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40603, 'Especialización en Psicología de los cuidados Paliativos', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40604, 'Especialización en Psicología de las Organizaciones y del Trabajo', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40605, 'Especialización en Psicología de las Organizaciones y del Trabajo - FUCN Virtual', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40606, 'Especialización en Psicología de las Organizaciones y del Trabajo - Confamiliar Risaralda', 'Programa Académico', 'Especialización', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40607, 'Maestría en Neuropsicología', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40608, 'Maestría en Psicología Clinica', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40609, 'Maestría en Psicología de las Organizaciones y del Trabajo', 'Programa Académico', 'Maestría', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406),
+    (40610, 'Doctorado en Psicología', 'Programa Académico', 'Doctorado', 'sin dato', NULL, 'sin dato', 'sin dato', 'sin dato', 'Medellín', 406);
+
+
 -- ============================================================
 -- Conteos esperados:
 --   area_conocimiento                 218 filas
---   programa                         0 filas (la v1 arranca con la tabla vacía)
+--   programa                          191 filas (del Excel del módulo)
 -- ============================================================

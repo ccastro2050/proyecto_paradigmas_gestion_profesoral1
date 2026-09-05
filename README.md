@@ -56,11 +56,12 @@ El CRUD completo de **`programa`** de punta a punta: controlador, servicio,
 repositorio, interfaces, modelos por verbo y una prueba que corre **sin base
 de datos**.
 
-**La tabla arranca vacía**, y eso no es una carencia: el smoke test recorre
-el ciclo completo desde el estado inicial —**204 → crear → total 1 → borrar →
-204 otra vez**— y ejercita el 204 del listado vacío, que una tabla llena
-nunca deja probar. Los catálogos que **sí** vienen cargados (218 filas de `area_conocimiento`) son
-infraestructura: la v1 no los nombra.
+**La tabla arranca con 191 filas** **del Excel del módulo**: el smoke test
+recorre el ciclo completo sobre datos de verdad —**listar → crear → total
+192 → borrar → total 191 otra vez**— y compara contra la pantalla lo que la
+API devolvió. De dónde salió cada columna está en `db/init.sql`, encima
+del `INSERT`, y en §3 de `5_data_model.md`. Los catálogos que además
+vienen cargados (218 filas de `area_conocimiento`) son infraestructura: la v1 no los nombra.
 
 **La v1 del curso pide cinco tablas sin clave foránea.** Este repositorio construye **una sola,
 completa**: es el molde. Las demás son el mismo patrón con otros nombres. El

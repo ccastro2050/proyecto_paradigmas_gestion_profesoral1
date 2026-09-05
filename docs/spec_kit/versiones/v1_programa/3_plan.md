@@ -69,18 +69,18 @@ flowchart TD
 
 ### 3.1 Un modelo por verbo, no uno para todo
 
-`AreaConocimiento` (POST), `AreaConocimientoReemplazo` (PUT) y
-`AreaConocimientoActualizar` (PATCH) son **tres clases**, no una con banderas.
+`Programa` (POST), `ProgramaReemplazo` (PUT) y
+`ProgramaActualizar` (PATCH) son **tres clases**, no una con banderas.
 
 La diferencia entre PUT y PATCH **no la decide un `if` en el servicio: la
-decide el tipo**. En `Reemplazo` los tres campos son obligatorios; en
-`Actualizar` los tres son opcionales. El mismo cuerpo responde 422 en uno y
+decide el tipo**. En `Reemplazo` **diez** campos son obligatorios y uno —`fecha_cierre`— opcional; en
+`Actualizar` los once son opcionales. El mismo cuerpo responde 422 en uno y
 200 en el otro, y no hay una línea de código que lo compare.
 
 ### 3.2 El 422 no se programa: se declara
 
 ```python
-gran_area: str = Field(min_length=1, max_length=60)
+nombre: str = Field(min_length=1, max_length=150)
 ```
 
 Eso es todo. Si el cuerpo no cumple, FastAPI responde 422 **antes** de que el
@@ -89,7 +89,7 @@ no puede quedar desactualizada respecto al modelo.
 
 ### 3.3 Las dos interfaces, y para qué sirven de verdad
 
-`IServicioAreaConocimiento` e `IRepositorioAreaConocimiento` son `Protocol`
+`IServicioPrograma` e `IRepositorioPrograma` son `Protocol`
 de Python. **No las obliga el lenguaje**: Python no exige declararlas.
 
 Sirven para algo comprobable: el servicio depende de la **interfaz** del

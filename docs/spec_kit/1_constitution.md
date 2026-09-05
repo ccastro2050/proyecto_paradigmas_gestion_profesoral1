@@ -175,8 +175,7 @@ ni en archivos versionados. Van en **variables de entorno**, con el `.env`
 fuera de git y un `.env.example` adentro. En la rúbrica, un secreto
 quemado **anula el criterio de seguridad de la versión**.
 
-**Y este proyecto es la excepción, declarada.** Aquí la contraseña de SQL
-Server está escrita en **dos archivos versionados**, a propósito:
+**Y este proyecto es la excepción, declarada.** Aquí la contraseña de PostgreSQL está escrita en **dos archivos versionados**, a propósito:
 
 - el `docker-compose.yml`, que se la entrega a los contenedores;
 - el `las variables del compose`, en la cadena de desarrollo — la que permite

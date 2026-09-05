@@ -51,11 +51,18 @@ vertical completa —controlador, servicio, repositorio, interfaces,
 peticiones y prueba sin base de datos— sobre la tabla **con más campos de
 las siete sin clave foránea** (once, frente a los cuatro de la siguiente).
 
-Y arranca **vacía**, a propósito: el Excel de referencia no trae programas.
-Eso no es una carencia sino una ventaja para el smoke test, que puede
-recorrer el ciclo completo desde el principio —**listado vacío → 204,
-crear → 1 fila, borrar → 204 otra vez**— y ejercitar el 204 que una tabla
-llena nunca deja probar.
+Y arranca **con las 191 filas del Excel del módulo**. El Excel las trae,
+aunque solo con cuatro de las once columnas: dos de las que faltan se
+derivan de él —`nivel` del nombre, `ciudad` siguiendo la cadena
+facultad→universidad— y las cuatro que no tienen origen quedan marcadas
+como `'sin dato'`. El detalle, columna por columna, está en §3 de
+`5_data_model.md`.
+
+El smoke test recorre el ciclo sobre esos datos —**listar → crear → total
+192 → borrar → total 191**— y compara contra la pantalla lo que la API
+devolvió. Lo que se perdió al sembrar está dicho en `4_research.md`
+D-v1-9: el **204 del listado vacío** sigue en el contrato pero ya no se ve
+al arrancar.
 
 Las demás tablas de la v1 son **ese mismo patrón** con otros nombres. El
 equipo que tome este ejemplo lo revisa, y **si está de acuerdo lo retoma y

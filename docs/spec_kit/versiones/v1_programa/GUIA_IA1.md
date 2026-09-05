@@ -83,12 +83,14 @@ REGLAS DE TRABAJO (no negociables):
    fases siguientes y lo retomamos al final. Al terminar todas las fases
    me guías para correr el smoke test de 7_quickstart.md y corregimos
    juntos lo que salga.
-4. La base de datos YA VIENE DADA en db/init.sql + db/iid.sh —
+4. La base de datos YA VIENE DADA en db/init.sql + db/init.sh —
    se montan tal cual en el compose; no escribas ni modifiques SQL de
    creación de tablas. OJO: el docker-compose.yml TODAVÍA NO EXISTE y
-   escribirlo es tu primera tarea (Fase 0). La tabla programa existe pero
-   ARRANCA VACÍA: el sistema tiene que funcionar sin datos, y el primer
-   GET al listado responde 204, no 200 con una lista vacía.
+   escribirlo es tu primera tarea (Fase 0). La tabla programa existe y ARRANCA
+   CON 191 FILAS que el init.sql siembra: el primer GET al listado
+   responde 200 con total: 191. El 204 SIGUE SIENDO OBLIGATORIO para el
+   listado vacío —vacío no es error— pero ya no se llega ahí arrancando,
+   así que hay que escribirlo sin poder verlo de entrada.
 5. El borrado es LÓGICO: DELETE marca activo = FALSE, y los listados filtran
    los inactivos. Nunca se borra la fila.
 6. El código debe cumplir 6_contracts.md al pie de la letra: mismos
@@ -142,7 +144,7 @@ construir y espera mi confirmación antes de tocar nada.
 
 El código va en api_gestion/ según la estructura de 3_plan.md.
 docs/ y db/ son SOLO LECTURA: no los modifiques. La base de datos YA VIENE
-DADA en db/init.sql + db/iid.sh — úsalos tal cual para montar
+DADA en db/init.sql + db/init.sh — úsalos tal cual para montar
 PostgreSQL. OJO: el docker-compose.yml todavía NO EXISTE y escribirlo es
 tu primera tarea (Fase 0).
 
@@ -209,7 +211,7 @@ Tres cosas que conviene vigilar desde el primer archivo:
 | Qué | Por qué pasa |
 |---|---|
 | Olvidar `WHERE activo = TRUE` en algún listado | El borrado lógico no es lo más común en los ejemplos con los que se entrenó |
-| Devolver 200 con una lista vacía en vez de 204 | Es lo que hace la mayoría de las APIs. Aquí el contrato pide 204, y la tabla arranca vacía: se nota de inmediato |
+| Devolver 200 con una lista vacía en vez de 204 | Es lo que hace la mayoría de las APIs, y aquí el contrato pide 204. Ojo: la tabla arranca con 191 filas, así que este error **no se nota solo**; hay que provocarlo |
 | Devolver 409 en el código duplicado | Es lo "correcto" según el manual de HTTP, pero esta versión decidió 500 (C11) |
 
 Las tres están decididas en las Clarificaciones. Si la IA propone otra

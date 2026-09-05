@@ -32,7 +32,7 @@
           <th>Tipo</th>
           <th>Nivel</th>
           <th>Ciudad</th>
-          <th>Cantidad de graduados</th>
+          <th>Facultad</th>
           <th></th>
         </tr>
       </thead>
@@ -44,7 +44,7 @@
           <td>{{ fila["tipo"] if fila["tipo"] is not none else "—" }}</td>
           <td>{{ fila["nivel"] if fila["nivel"] is not none else "—" }}</td>
           <td>{{ fila["ciudad"] if fila["ciudad"] is not none else "—" }}</td>
-          <td>{{ fila["cant_graduados"] if fila["cant_graduados"] is not none else "—" }}</td>
+          <td>{{ fila["facultad"] if fila["facultad"] is not none else "—" }}</td>
           <td class="acciones">
             <a class="boton" href="{{ url_for('editar_programa', id=fila['id']) }}">Editar</a>
 

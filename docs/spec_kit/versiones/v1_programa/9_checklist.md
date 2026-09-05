@@ -45,9 +45,13 @@
       las FK, el JWT, las demás pantallas y la reactivación.
 - [ ] Cada endpoint de [6_contracts.md](6_contracts.md) documenta sus
       desenlaces de **ERROR**, no solo el feliz.
-- [ ] [5_data_model.md](5_data_model.md) dice con todas las letras que la
-      tabla **arranca vacía**, que es de lo que depende el criterio 2, y
-      qué catálogos sí vienen cargados aunque la v1 no los nombre.
+- [ ] [5_data_model.md](5_data_model.md) dice, dato por dato, **de dónde
+      salieron las 191 filas** con que arranca `programa` —cuáles vienen del
+      Excel, cuáles se derivaron de él y cuáles se inventaron— y qué
+      catálogos vienen cargados aunque la v1 no los nombre.
+- [ ] Ningún documento sigue diciendo que la tabla **arranca vacía**: era
+      cierto y dejó de serlo, y un supuesto viejo repetido en seis
+      archivos es peor que no haberlo escrito.
 - [ ] Cada decisión de [4_research.md](4_research.md) tiene su alternativa
       descartada.
 

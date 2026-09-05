@@ -17,7 +17,7 @@ class Programa(BaseModel):
 
     """El código del programa."""
     id: int = Field(ge=1)
-    nombre: str = Field(min_length=1, max_length=60)
+    nombre: str = Field(min_length=1, max_length=150)
 
     """Pregrado, posgrado…"""
     tipo: str = Field(min_length=1, max_length=45)
@@ -50,7 +50,7 @@ class ProgramaReemplazo(BaseModel):
     de PUT. La llave no va aquí: identifica la fila y viaja en la ruta.
     """
 
-    nombre: str = Field(min_length=1, max_length=60)
+    nombre: str = Field(min_length=1, max_length=150)
 
     """Pregrado, posgrado…"""
     tipo: str = Field(min_length=1, max_length=45)
@@ -83,7 +83,7 @@ class ProgramaActualizar(BaseModel):
     Lo decide el tipo, no un if en el servicio.
     """
 
-    nombre: str | None = Field(default=None, min_length=1, max_length=60)
+    nombre: str | None = Field(default=None, min_length=1, max_length=150)
 
     """Pregrado, posgrado…"""
     tipo: str | None = Field(default=None, min_length=1, max_length=45)

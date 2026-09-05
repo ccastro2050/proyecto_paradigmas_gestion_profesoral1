@@ -49,9 +49,13 @@ Los comandos van **numerados igual que los criterios de aceptación** de
 curl http://localhost:8029/
 #    → {"mensaje":"...","version":"v1","contratos":"/docs"}
 
-# 2. El sistema arranca VACÍO: sin programas, el listado responde 204
+# 2. El sistema arranca CON DATOS: el init.sql sembró la tabla
 curl -i http://localhost:8029/api/programa
-#    → HTTP 204, sin cuerpo. Vacío no es error.
+#    → HTTP 200 con total: 191.
+#      El 204 sigue siendo la respuesta al listado VACÍO —y el front
+#      lo trata como «todavía no hay»— pero ya no se llega ahí
+#      arrancando. Para verlo: comentar el INSERT de db/init.sql,
+#      docker compose down -v, y volver a levantar.
 
 # 3. Crear y listar
 curl -X POST http://localhost:8029/api/programa `
@@ -59,7 +63,7 @@ curl -X POST http://localhost:8029/api/programa `
   -d '{"id":9001,"nombre":"Ingenieria de Sistemas","tipo":"Pregrado","nivel":"Profesional","fechaCreacion":"2005-01-15","fechaCierre":null,"numeroCohortes":"40","cantGraduados":"1250","fechaActualizacion":"2026-01-30","ciudad":"Medellin","facultad":1}'
 #    → 200 creado
 curl http://localhost:8029/api/programa
-#    → 200 con total: 1
+#    → 200 con total: 192
 
 # 4. El ciclo de los cinco verbos
 curl -X PUT http://localhost:8029/api/programa/9001 `
@@ -86,15 +90,15 @@ curl -i -X PATCH http://localhost:8029/api/programa/9001 `
 curl -X DELETE http://localhost:8029/api/programa/9001
 #    → 200 filasAfectadas: 1
 curl -i http://localhost:8029/api/programa
-#    → 204 otra vez: el único programa desapareció del listado
+#    → 200 con total: 191 otra vez: el programa creado desapareció del listado
 curl -i -X DELETE http://localhost:8029/api/programa/9001
 #    → 404: para la API ya no existe
 
 #    …pero la fila SIGUE en la base. Comprobarlo:
-docker compose exec postgres bash -c '/opt/mssql-tools18/bin/sqlcmd `
-  -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -d gestion_local `
-  -Q "SELECT id, activo FROM programa"'
-#    → 9001 | 0
+docker compose exec postgres `
+  psql -U gestion -d gestion_local `
+  -c "SELECT id, activo FROM programa WHERE id = 9001"
+#    → 9001 | f   ← sigue ahí, con activo en falso
 
 # 6. La validación es la frontera: nada de esto llega a la base
 curl -i -X POST http://localhost:8029/api/programa `

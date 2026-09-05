@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Gestión Profesoral (Python) — v1 (programa)",
-    "description": "Los 7 endpoints de la v1, en el orden del smoke test. La tabla arranca VACÍA.",
+    "description": "Los 7 endpoints de la v1, en el orden del smoke test. La tabla arranca con 191 filas: 191 filas del Excel del módulo.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -43,7 +43,7 @@
             "programa"
           ]
         },
-        "description": "Con la base recién levantada responde 204 SIN cuerpo. No es un error."
+        "description": "Responde 200 con total: 191: el init.sql siembra la tabla. Con el listado VACÍO responde 204 SIN cuerpo, que no es un error — pero ya no se llega ahí arrancando."
       }
     },
     {
