@@ -228,10 +228,10 @@ tocar.
 ```markdown
 | Tabla | PK | Semilla |
 |---|---|---|
-| programa | codigo | 8 filas (PR001 "Laptop…", stock 17, …) |
+| programa | id | 191 filas del Excel del módulo |
 
-El stock lo mueve el TRIGGER al facturar: la API tiene PROHIBIDO
-escribirlo directamente.
+`activo` lo escribe SOLO el DELETE: la API tiene PROHIBIDO recibirlo en
+el cuerpo de un POST o de un PUT.
 ```
 
 **6. `6_contracts.md` — el contrato HTTP exacto.**
@@ -366,7 +366,7 @@ La mitad del valor del kit se juega aquí. Cuatro reglas:
    saber el stack, está mal escrito.
 2. **Medible o no es criterio.** Un criterio dice un número, un código de
    estado o un texto exacto. "Responde rápido" no es criterio; "responde
-   200 con las 8 filas semilla" sí.
+   200 con las 191 filas semilla" sí.
 3. **Una cosa por requisito.** Si un RF necesita un "y" para explicarse,
    casi siempre son dos.
 4. **La ambigüedad se MARCA, no se rellena.** Cuando algo no está
@@ -374,10 +374,10 @@ La mitad del valor del kit se juega aquí. Cuatro reglas:
    jamás se inventa la respuesta:
 
 ```markdown
-### RF6 — Eliminar programa
-DELETE /api/programa/{codigo} elimina el registro de programa.
-[NECESITA ACLARACIÓN: ¿borrado físico, o lógico como la anulación
-de facturas? Afecta al criterio 5 y al contrato del DELETE.]
+### RF6 — Retirar el programa
+DELETE /api/programa/{id} retira el programa del uso.
+[NECESITA ACLARACIÓN: ¿borrado físico, o lógico marcando una columna
+de estado? Afecta al criterio 5 y al contrato del DELETE.]
 ```
 
 Esa costumbre —marcar en vez de rellenar— es la vacuna contra el vicio
@@ -387,7 +387,7 @@ lo más frecuente en su entrenamiento, no con lo que su proyecto necesita.
 | Así NO | Así SÍ |
 |---|---|
 | "El sistema debe validar correctamente los datos" | "Un POST sin el campo `nombre` responde **422** con `errores[]` y no toca la BD" |
-| "Debe ser rápido" | "El listado responde en menos de 1 s con las 8 filas semilla" |
+| "Debe ser rápido" | "El listado responde en menos de 1 s con las 191 filas semilla" |
 | "Manejar los errores adecuadamente" | "Código inexistente → **404** con `{estado, mensaje, detalle}`" |
 
 ### 2.4 La trazabilidad: de la historia al smoke test
@@ -496,7 +496,7 @@ Gemini CLI…).
 
 ```bash
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
-specify init mi_v1_producto --integration copilot
+specify init mi_v1_programa --integration copilot
 specify version
 ```
 
@@ -601,13 +601,14 @@ clarify pregunta:
     Impacto si es (b): cambia el contrato del DELETE, obliga a una
     columna de estado en 5_data_model y reescribe el criterio 4.
 
-Usted responde:  a
+Usted responde:  b
 
 clarify NO crea un archivo: escribe dentro de 2_spec.md
     ## Clarificaciones
-    C5 — DELETE, ¿físico o lógico? -> Físico: la tabla programa no
-    tiene columna de estado. El borrado lógico llega con la anulación
-    de facturas, en una versión posterior.
+    C5 — DELETE, ¿físico o lógico? -> LÓGICO: la tabla programa gana
+    una columna `activo`, el DELETE la pone en falso y TODAS las
+    consultas filtran por ella. Cambia el contrato del DELETE y el
+    criterio 5, y queda como Artículo 6 de la constitución.
 ```
 
 **A mano, en este curso:** eso es exactamente la
@@ -628,7 +629,7 @@ hecha por máquina. Un reporte sobre una v1 mal armada se vería así:
 | 1 | ALTA | `2_spec` RF7 ↔ `6_contracts` | RF7 (diagnóstico) no tiene contrato: ningún endpoint lo describe |
 | 2 | ALTA | `6_contracts` §7 ↔ `8_tasks` | El `DELETE` tiene contrato, pero ninguna fase lo construye |
 | 3 | MEDIA | `2_spec` criterio 3 ↔ `7_quickstart` | El criterio 3 no tiene comando en el smoke test: no hay forma de verificarlo |
-| 4 | MEDIA | `3_plan` §2 ↔ `8_tasks` | El plan lista `excepciones/NoEncontradoExcepcion.py` y ninguna tarea lo crea |
+| 4 | MEDIA | `3_plan` §2 ↔ `8_tasks` | El plan dice que el servicio lanza `LookupError` y ninguna tarea lo escribe |
 | 5 | BAJA | `6_contracts` §4 ↔ `5_data_model` | El ejemplo del POST usa `PR009`, y las semillas llegan hasta `PR008` — correcto, pero conviene decir que es un código nuevo a propósito |
 
 Fíjese en algo: **ningún hallazgo es sobre el código**. Todos son
