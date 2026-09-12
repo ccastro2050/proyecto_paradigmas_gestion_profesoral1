@@ -43,24 +43,26 @@ Esto es de la prueba de capas de **este** repositorio, en
 `api_gestion/pruebas/prueba_capas.py`:
 
 ```python
-# PREPARAR: el servicio, armado con un repositorio falso en memoria
-servicio = ServicioProducto(RepositorioFalsoEnMemoria())
+# PREPARAR (Arrange): el servicio, armado con un repositorio falso en memoria
+servicio = ServicioPrograma(RepositorioDeMentiras())
 
-# EJECUTAR: la operación que se quiere probar
-await servicio.crear({"codigo": "T1", "nombre": "Test", "stock": 5, "valorunitario": 100.0})
+# EJECUTAR (Act): la operación que se quiere probar
+await servicio.crear(nueva)
+lista = await servicio.listar(1000)
 
-# COMPROBAR: la línea que PUEDE FALLAR — esta línea ES la prueba
-filas = await servicio.listar(10)
-verificar(filas[0]["codigo"] == "T1", "crear + listar")
+# COMPROBAR (Assert): la línea que PUEDE FALLAR — esta línea ES la prueba
+bien &= revisar(len(lista) == 1 and lista[0][LLAVE] == 9001,
+                f"Registro creado y listado: {lista[0]['nombre']}",
+                "La creación no se reflejó en el listado.")
 ```
 
-> **Los tres comentarios en mayúscula no están en el archivo:** los agregué
-> aquí para señalar las partes. El código sí es el de su repositorio, línea
-> por línea — vaya y compárelo.
+> **Los comentarios en mayúscula no están en el archivo:** los agregué
+> aquí para señalar las partes. El código sí es el de su repositorio,
+> línea por línea — vaya y compárelo.
 
 
 **La tercera parte es la prueba.** Las dos primeras solo montan la escena. Si
-borra el `verificar`, el programa sigue corriendo, sigue sin dar error… y ya
+borra el `revisar`, el programa sigue corriendo, sigue sin dar error… y ya
 no está probando nada. Vuelva a esta idea en la Parte 2, porque es el origen
 de todo lo que viene.
 
@@ -72,17 +74,17 @@ se provoca el error y se comprueba que **sí ocurrió**.
 ```python
 try:
     await servicio.obtener("NOEXISTE")
-    verificar(False, "debió lanzar LookupError")   # si llega aquí, NO falló: mal
+    revisar(False, "", "debió lanzar LookupError")   # si llega aquí, NO falló: mal
 except LookupError:
     pass   # esperado: la regla funciona
 ```
 
-Fíjese en el `verificar(false, …)`: está puesto **después** de la llamada
+Fíjese en el `revisar(false, …)`: está puesto **después** de la llamada
 para el caso en que la excepción no ocurra. Sin esa línea, una prueba que
 debía fallar y no falló pasaría en silencio.
 
 
-### «verificar» es un `assert` hecho a mano
+### «revisar» es un `assert` hecho a mano
 
 Si ha visto pruebas en otra parte, le va a faltar una palabra: **`assert`**.
 Ese es el nombre estándar de **la línea que puede fallar**, y cada lenguaje
@@ -93,7 +95,7 @@ tiene la suya:
 | Python (pytest) | la palabra reservada `assert` |
 | C# (xUnit) | `Assert.Equal(esperado, obtenido)` |
 | PHP (PHPUnit) | `$this->assertSame(...)` |
-| **Este curso** | `verificar(condición, "descripción")` |
+| **Este curso** | `revisar(condición, "si pasa", "si falla")` |
 
 **Es lo mismo.** En este proyecto está escrito a mano:
 
@@ -102,7 +104,7 @@ tiene la suya:
 assert filas[0]["codigo"] == "T1"
 
 # En este curso, sin framework:
-verificar(filas[0]["codigo"] == "T1", "crear + listar")
+revisar(filas[0]["codigo"] == "T1", "crear + listar", "no pasó: crear + listar")
 ```
 
 ### ¿Por qué a mano, y no con pytest?
@@ -120,11 +122,11 @@ proyecto, sin configurarlo y sin que haya que aprenderlo en la versión 1.
 | Preparación compartida (*fixtures*) | No | **Sí** |
 
 **No estamos haciendo otra cosa: estamos haciendo lo mismo sin la
-herramienta.** Cuando el proyecto crezca, pytest entra y `verificar` se retira — y para
+herramienta.** Cuando el proyecto crezca, pytest entra y `revisar` se retira — y para
 entonces usted ya sabrá qué es lo que hace, porque lo escribió.
 
 > **Lo esencial no cambia nunca:** una prueba es una línea que **puede
-> fallar**. Se llame `assert`, `Assert.Equal` o `verificar`.
+> fallar**. Se llame `assert`, `Assert.Equal` o `revisar`.
 
 ---
 
@@ -218,7 +220,7 @@ Usted escribió veinte pruebas. Todas pasan. **¿Eso qué garantiza?**
 Menos de lo que parece. Una prueba puede:
 
 - ejecutar el código **sin comprobar nada**;
-- comprobar algo que siempre es cierto (`verificar(true, …)`);
+- comprobar algo que siempre es cierto (`revisar(true, …)`);
 - probar el caso fácil y no el que de verdad falla.
 
 Y en los tres casos **el reporte se ve igual de verde**.
@@ -230,7 +232,7 @@ Esta ejecuta el método y no verifica nada:
 ```python
 # PRUEBA HUECA: corre el código… y no comprueba NADA
 await servicio.crear(peticion)
-# (sin verificar: si crear guarda mal, esto "pasa")
+# (sin revisar: si crear guarda mal, esto "pasa")
 ```
 
 La que sí protege lleva **una línea que puede fallar**:
@@ -238,7 +240,7 @@ La que sí protege lleva **una línea que puede fallar**:
 ```python
 await servicio.crear(peticion)
 guardado = await servicio.obtener(peticion["codigo"])
-verificar(guardado["nombre"] == peticion["nombre"], "el nombre quedó guardado")
+revisar(guardado["nombre"] == peticion["nombre"], "el nombre quedó guardado", "no pasó: el nombre quedó guardado")
 ```
 
 **Las dos ejecutan exactamente las mismas líneas del código.** Para cualquier
@@ -339,7 +341,7 @@ Suponga que su única prueba del listado es esta:
 
 ```python
 filas = await servicio.listar(10)
-verificar(len(filas) >= 0, "listar funciona")
+revisar(len(filas) >= 0, "listar funciona", "no pasó: listar funciona")
 ```
 
 Pasa. Da cobertura. Y contra el **mutante 1** (`limite < 0`) **también pasa**,
@@ -351,7 +353,7 @@ La prueba que lo mata es la que provoca el caso:
 ```python
 try:
     await servicio.listar(0)
-    verificar(False, "debió rechazar límite 0")
+    revisar(False, "", "debió rechazar límite 0")
 except ValueError:
     pass   # esperado
 ```
@@ -374,7 +376,7 @@ pruebas que pasean por el código sin mirarlo.
 ### Por qué esto importa ahora
 
 Un agente de IA genera con gusto pruebas que **parecen** serias: nombres
-largos, estructura impecable, y ni un `verificar` que pueda fallar. La
+largos, estructura impecable, y ni un `revisar` que pueda fallar. La
 mutación no se deja convencer por la apariencia: **o el test mata al mutante
 o no lo mata**.
 
